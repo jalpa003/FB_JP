@@ -19,7 +19,8 @@ export default function ProductHero() {
                 backgroundImage: `url(${backgroundImage})`,
                 backgroundColor: '#7fc7d9', // Average color of the background image.
                 backgroundPosition: 'center',
-                height: "750px",
+                backgroundRepeat: 'no-repeat',
+                height: "100vh",
                 backgroundSize: 'cover',
             }}
         >
