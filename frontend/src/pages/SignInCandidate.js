@@ -1,21 +1,27 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import { Field, Form, FormSpy } from 'react-final-form';
 import Box from '@mui/material/Box';
+import Link from '@mui/material/Link';
 import Typography from '../component/Typography';
 // import AppFooter from './AppFooter';
-import AppAppBar from '../component/AppAppBar';
+import AppAppBar from '../component/Typography';
 import AppForm from '../component/AppForm';
 import { email, required } from '../form/validation';
 import RFTextField from '../form/RFTextField';
 import FormButton from '../form/FormButton';
 import FormFeedback from '../form/FormFeedback';
 import withRoot from '../withRoot';
+import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
 
-function ForgotPassword() {
-    const [sent, setSent] = React.useState(false);
+function CandidateSignIn() {
+    const navigate = useNavigate();
+    const [sent, setSent] = useState(false);
 
     const validate = (values) => {
-        const errors = required(['email'], values);
+        const errors = required(['email', 'password'], values);
 
         if (!errors.email) {
             const emailError = email(values.email);
@@ -23,12 +29,33 @@ function ForgotPassword() {
                 errors.email = emailError;
             }
         }
-
+        if (values.password && values.password.length < 6) {
+            errors.password = 'Password must be at least 6 characters.';
+        }
         return errors;
     };
 
-    const handleSubmit = () => {
-        setSent(true);
+    const handleSubmit = async (values) => {
+        try {
+            // Make API request to candidate sign-in endpoint
+            const response = await axios.post('http://localhost:3003/user_login', values);
+            if (response.status === 200) {
+                toast.success(response.data.message);
+                setSent(true);
+
+                // Delay the redirect for 1.5 seconds
+                setTimeout(() => {
+                    navigate('/candidate-profile');
+                }, 1500);
+            } else {
+                // Show error toast
+                toast.error(response.data.message);
+            }
+        } catch (error) {
+            console.error(error);
+            const errorData = error.response.data;
+            toast.error(errorData);
+        }
     };
 
     return (
@@ -36,12 +63,14 @@ function ForgotPassword() {
             <AppAppBar />
             <AppForm>
                 <React.Fragment>
-                    <Typography variant="h3" gutterBottom marked="center" align="center">
-                        Forgot your password?
+                    <Typography variant="h4" gutterBottom marked="center" align="center">
+                        Candidate Sign In
                     </Typography>
                     <Typography variant="body2" align="center">
-                        {"Enter your email address below and we'll " +
-                            'send you a link to reset your password.'}
+                        {'Not a candidate yet? '}
+                        <Link href="/sign-up/candidate" align="center" underline="always">
+                            Sign Up here
+                        </Link>
                     </Typography>
                 </React.Fragment>
                 <Form
@@ -52,8 +81,8 @@ function ForgotPassword() {
                     {({ handleSubmit: handleSubmit2, submitting }) => (
                         <Box component="form" onSubmit={handleSubmit2} noValidate sx={{ mt: 6 }}>
                             <Field
-                                autoFocus
                                 autoComplete="email"
+                                autoFocus
                                 component={RFTextField}
                                 disabled={submitting || sent}
                                 fullWidth
@@ -62,6 +91,18 @@ function ForgotPassword() {
                                 name="email"
                                 required
                                 size="large"
+                            />
+                            <Field
+                                fullWidth
+                                size="large"
+                                component={RFTextField}
+                                disabled={submitting || sent}
+                                required
+                                name="password"
+                                autoComplete="current-password"
+                                label="Password"
+                                type="password"
+                                margin="normal"
                             />
                             <FormSpy subscription={{ submitError: true }}>
                                 {({ submitError }) =>
@@ -79,15 +120,21 @@ function ForgotPassword() {
                                 color="secondary"
                                 fullWidth
                             >
-                                {submitting || sent ? 'In progress…' : 'Send reset link'}
+                                {submitting || sent ? 'In progress…' : 'Sign In'}
                             </FormButton>
                         </Box>
                     )}
                 </Form>
+                <Typography align="center">
+                    <Link underline="always" href="/forget-password">
+                        Forgot password?
+                    </Link>
+                </Typography>
             </AppForm>
             {/* <AppFooter /> */}
+            <ToastContainer />
         </React.Fragment>
     );
 }
 
-export default withRoot(ForgotPassword);
+export default withRoot(CandidateSignIn);

@@ -2,15 +2,15 @@ import * as React from 'react';
 import { Field, Form, FormSpy } from 'react-final-form';
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
-import Typography from './modules/components/Typography';
-import AppFooter from './modules/views/AppFooter';
-import AppAppBar from './modules/views/AppAppBar';
-import AppForm from './modules/views/AppForm';
-import { email, required } from './modules/form/validation';
-import RFTextField from './modules/form/RFTextField';
-import FormButton from './modules/form/FormButton';
-import FormFeedback from './modules/form/FormFeedback';
-import withRoot from './modules/withRoot';
+import Typography from '../component/Typography';
+import AppFooter from './AppFooter';
+import AppAppBar from './AppAppBar';
+import AppForm from './AppForm';
+import { email, required } from '../form/validation';
+import RFTextField from '../form/RFTextField';
+import FormButton from '../form/FormButton';
+import FormFeedback from '../form/FormFeedback';
+import withRoot from '../withRoot';
 
 function SignIn() {
     const [sent, setSent] = React.useState(false);
@@ -43,7 +43,7 @@ function SignIn() {
                     <Typography variant="body2" align="center">
                         {'Not a member yet? '}
                         <Link
-                            href="/premium-themes/onepirate/sign-up/"
+                            href="/sign-up/"
                             align="center"
                             underline="always"
                         >
@@ -104,7 +104,7 @@ function SignIn() {
                     )}
                 </Form>
                 <Typography align="center">
-                    <Link underline="always" href="/premium-themes/onepirate/forgot-password/">
+                    <Link underline="always" href="/forgot-password/">
                         Forgot password?
                     </Link>
                 </Typography>

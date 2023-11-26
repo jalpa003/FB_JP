@@ -18,7 +18,7 @@ function Paper(props) {
     return (
         <PaperRoot
             square
-            elevation={0}
+            elevation={20}
             background={background}
             padding={padding}
             className={className}

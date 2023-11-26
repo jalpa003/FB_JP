@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Link from '@mui/material/Link';
 import Container from '@mui/material/Container';
-import Typography from '../component/Typography';
+import Typography from './Typography';
 // import TextField from '../component/TextField';
 
 function Copyright() {

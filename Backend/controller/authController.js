@@ -1,14 +1,13 @@
 const User = require('../models/users');
-const Candidate = require('../models/candidate');
+const Candidate = require('../models/candidates');
 const jwt = require("jsonwebtoken");
 const upload = require('../middleware/upload');
 
 //create user registration api
 module.exports.candidateRegistration = async (req, res) => {
-    
-    const { email, password, firstName, lastName, headline, phone, showPhoneToEmployers, address, willingToRelocate, resume, profilePicture, distance, jobTraining, experienceLevel, languageSkills } = req.body;
+    const { email, password, firstName, lastName } = req.body;
 
-    // Check if the username is already taken
+    // Check if the email is already exist
     const existingUser = await User.findOne({ email });
     if (existingUser) {
         return res.status(400).json({ message: 'Email is already exist!' });
@@ -20,35 +19,14 @@ module.exports.candidateRegistration = async (req, res) => {
             email,
             password,
             role: 'candidate',
-        });
-
-        // // Save the user to the database
-        const saveUser = await newCandidate.save();
-        
-
-        // Create a new candidate profile associated with the registered user
-        const newCandidateProfile = new Candidate({
-            user: saveUser._id,
-            email: saveUser.email,
             firstName,
-            lastName,
-            headline,
-            phone,
-            showPhoneToEmployers,
-            address,
-            willingToRelocate,
-            resume,
-            profilePicture,
-            distance,
-            jobTraining,
-            experienceLevel,
-            languageSkills
-
+            lastName
         });
-        const saveCandidate = await newCandidateProfile.save();
-        
-        if (saveCandidate) {
-            res.status(201).json({ message: 'Candidate registered successfully' });
+
+        // Save the user to the database
+        const saveUser = await newCandidate.save();
+        if (saveUser) {
+            res.status(201).json({ message: `Welcome ${firstName}! Your account has been created successfully.` });
         }
     } catch (error) {
         console.error(error);
@@ -57,7 +35,7 @@ module.exports.candidateRegistration = async (req, res) => {
 }
 
 module.exports.employerRegistartion = async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, firstName, lastName } = req.body;
 
     // Check if the username is already taken
     const existingUser = await User.findOne({ email });
@@ -71,19 +49,19 @@ module.exports.employerRegistartion = async (req, res) => {
             email,
             password,
             role: 'employer',
+            firstName,
+            lastName
         });
 
         // Save the user to the database
         const save = await newEmployer.save();
         if (save) {
-            res.status(201).json({ message: 'Employer registered successfully' });
+            res.status(201).json({ message: `${firstName} You have successfully registered! Please log in with your credentials.` })
         }
-
     } catch (error) {
         console.log(error);
         handleRegistrationError(error, res);
     }
-
 }
 
 module.exports.logIn = async (req, res) => {
@@ -98,17 +76,18 @@ module.exports.logIn = async (req, res) => {
         let user = await User.findOne({ email });
 
         if (!user) {
-            throw new Error('Invalid credentials');
+            return res.status(400).send('Invalid email or password');
         }
         const isMatched = await user.isCorrectPassword(password);
         if (!isMatched) {
-            throw new Error('Invalid credentials');
+            return res.status(400).send('Invalid email or password');
         }
 
         //add token 
         const payload =
         {
             id: user._id,
+            email: user.email,
             name: user.name,
             role: user.role
         };

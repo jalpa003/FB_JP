@@ -1,14 +1,14 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
-import AppBar from '../component/AppBar';
-import Toolbar from '../component/Toolbar';
+import AppBar from './AppBar';
+import Toolbar from './Toolbar';
 
-const rightLink = {
-    fontSize: 16,
-    color: 'common.white',
-    ml: 3,
-};
+// const rightLink = {
+//     fontSize: 16,
+//     color: 'common.white',
+//     ml: 3,
+// };
 
 function AppAppBar() {
     return (
@@ -21,12 +21,12 @@ function AppAppBar() {
                         underline="none"
                         color="inherit"
                         href="/"
-                        sx={{ fontSize: 24 }}
+                        sx={{ fontSize: 20 }}
                     >
                         {'Serve Success'}
                     </Link>
                     <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-                        <Link
+                        {/* <Link
                             color="inherit"
                             variant="h6"
                             underline="none"
@@ -34,15 +34,15 @@ function AppAppBar() {
                             sx={rightLink}
                         >
                             {'Sign In'}
-                        </Link>
-                        <Link
+                        </Link> */}
+                        {/* <Link
                             variant="h6"
                             underline="none"
                             href="sign-up/"
                             sx={{ ...rightLink, color: 'secondary.main' }}
                         >
                             {'Sign Up'}
-                        </Link>
+                        </Link> */}
                     </Box>
                 </Toolbar>
             </AppBar>

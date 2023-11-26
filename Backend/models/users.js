@@ -17,11 +17,32 @@ const userSchema = new Schema({
         required: true,
         minlength: [6, 'password must have at least 6 characters'],
     },
+    firstName: {
+        type: String,
+        required: true
+    },
+    lastName: {
+        type: String,
+        required: true
+    },
     role: {
         type: String,
         required: true,
         enum: ['candidate', 'employer'],
     },
+    isProfileComplete: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    confirmationToken: {
+        type: String,
+        default: null
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
+    }
 }, { timestamps: true });
 
 //encrypt password before saving to db
@@ -38,6 +59,6 @@ userSchema.methods.isCorrectPassword = async function (password) {
 
 
 
-const User = mongoose.model('Users', userSchema);
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;

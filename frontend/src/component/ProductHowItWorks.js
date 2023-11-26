@@ -3,8 +3,8 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Container from '@mui/material/Container';
-import Button from '../component/Button';
-import Typography from '../component/Typography';
+import Button from './Button';
+import Typography from './Typography';
 
 const item = {
     display: 'flex',

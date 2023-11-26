@@ -1,7 +1,7 @@
 import * as React from 'react';
 import TextField from '@mui/material/TextField';
 // import Button from '../component/Button';
-import Typography from '../component/Typography';
+import Typography from './Typography';
 import ProductHeroLayout from './ProductHeroLayout';
 
 const backgroundImage =
@@ -39,7 +39,7 @@ export default function ProductHero() {
                 variant="h5"
                 sx={{ mb: 4, mt: { xs: 4, sm: 10 } }}
             >
-                Where Talent Meets Opportunity in the Food and Beverage World
+                Where Talent Meets Opportunity in the Food and Bartending World
             </Typography>
             <TextField
                 placeholder="Search for Jobs... e.g., Chef, Barista, Manager"
