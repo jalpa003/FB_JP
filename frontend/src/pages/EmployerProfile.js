@@ -35,7 +35,7 @@ function EmployerProfile() {
                 // Extract the user ID from decoded information
                 const employeeId = decodedToken.id;
 
-               const response = await axios.post('http://localhost:3003/employer-profile', values,
+                const response = await axios.get(`http://localhost:3003/get_employee/${employeeId}`, {
                     headers: {
                         Authorization: `${token}`
                     }
