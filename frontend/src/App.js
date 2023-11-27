@@ -9,6 +9,7 @@ import SignInCandidate from './pages/SignInCandidate';
 import SignInEmployer from './pages/SignInEmployer';
 import ForgetPassword from './pages/ForegtPassword';
 import EmployerProfile from './pages/EmployerProfile';
+import Profile from './pages/Profile';
 import JobPosting from './pages/JobPosting';
 
 const App = () => {
@@ -24,6 +25,7 @@ const App = () => {
           <Route path="/sign-in/employer" element={<SignInEmployer />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
           <Route path="/employer-profile" element={<EmployerProfile />} />
+          <Route path="/candidate-profile" element={<Profile />} />
           <Route path="/job-posting" element={<JobPosting />} />
         </Routes>
       </BrowserRouter>
