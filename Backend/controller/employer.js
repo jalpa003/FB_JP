@@ -107,44 +107,17 @@ module.exports.getAllEmployers = async (req, res) => {
 //get single employee by id
 module.exports.getSingleEmployeeById = async (req, res) => {
     try {
-        // Use the aggregate pipeline to match, lookup, and unwind
-        const employers = await User.aggregate([
-            {
-                $match: { role: 'employer' } // Match users with role 'employer'
-            },
-            {
-                $lookup: {
-                    from: 'employerprofiles', // Collection name of EmployerProfile
-                    localField: '_id',
-                    foreignField: 'user',
-                    as: 'employerProfile'
-                }
-            },
-            {
-                $unwind: {
-                    path: '$employerProfile',
-                    preserveNullAndEmptyArrays: true // Preserve users without a profile
-                }
-            },
-            {
-                $project: {
-                    _id: 1, // Include user ID
-                    email: 1,
-                    firstName: 1,
-                    lastName: 1,
-                    role: 1,
-                    isProfileComplete: 1,
-                    phone: '$employerProfile.phone',
-                    companyName: '$employerProfile.companyName',
-                    numberOfEmployees: '$employerProfile.numberOfEmployees',
-                    fAndBIndustry: '$employerProfile.fAndBIndustry',
-                    companyDescription: '$employerProfile.companyDescription',
-                    streetAddress: '$employerProfile.streetAddress'
-                }
-            }
-        ]);
+        const userId = req.user.id;
 
-        res.status(200).json({ success: true, employers });
+        // Use Mongoose's populate to get details from the referenced User model
+        const employer = await User.findOne({ _id: userId })
+        // .populate('EmployerProfile', 'phone companyName numberOfEmployees fAndBIndustry');
+
+        if (!employer) {
+            return res.status(404).json({ success: false, message: 'Employer not found' });
+        }
+
+        res.status(200).json({ success: true, employer });
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Internal Server Error' });

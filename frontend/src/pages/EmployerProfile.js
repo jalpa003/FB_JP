@@ -14,7 +14,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { jwtDecode as jwt_decode } from 'jwt-decode';
+// import { jwtDecode as jwt_decode } from 'jwt-decode';
 
 function EmployerProfile() {
     const navigate = useNavigate();
@@ -30,19 +30,19 @@ function EmployerProfile() {
                 const token = localStorage.getItem('token');
 
                 // Decode the token to get user information
-                const decodedToken = jwt_decode(token);
+                // const decodedToken = jwt_decode(token);
 
                 // Extract the user ID from decoded information
-                const employeeId = decodedToken.id;
-
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/get_employee/${employeeId}`, {
+                // const employeeId = decodedToken.id;
+                
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/get_single_employee`, {
                     headers: {
                         Authorization: `${token}`
                     }
                 });
 
                 if (response.status === 200) {
-                    setExistingDetails(response.data.employers[0]);
+                    setExistingDetails(response.data.employer);
                 }
             } catch (error) {
                 console.error(error);
@@ -152,7 +152,7 @@ function EmployerProfile() {
                                 fullWidth
                                 label="Phone Number"
                                 name="phone"
-                                required
+                                // required
                             />
                             <Field
                                 component={RFTextField}

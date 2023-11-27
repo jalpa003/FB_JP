@@ -20,7 +20,7 @@ router.post('/canidate-profile', middleware.verifyToken, candidateRoutes.complet
 
 //Employer Profile Routes
 router.post('/employer-profile', middleware.verifyToken, employerRoutes.createEmployerProfile);
-router.get('/get_single_employee/:employeeId', middleware.verifyToken, employerRoutes.getSingleEmployeeById);
+router.get('/get_single_employee', middleware.verifyToken, employerRoutes.getSingleEmployeeById);
 router.post('/create_job', middleware.verifyToken, jobsRoutes.createJobPosting);
 
 router.post('/create_emp_profile', middleware.verifyToken, employerRoutes.createEmployerProfile)

@@ -8,7 +8,7 @@ const employerProfileSchema = new mongoose.Schema({
     },
     phone: {
         type: String,
-        required: true
+        // required: true
     },
     companyName: String,
     numberOfEmployees: String,
