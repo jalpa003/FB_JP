@@ -41,12 +41,30 @@ const jobSchema = new mongoose.Schema({
     },
     hoursPerWeek: Number,
     workSchedule: {
-        weekDayAvailability: Boolean,
-        weekendAvailability: Boolean,
-        dayShift: Boolean,
-        eveningShift: Boolean,
-        onCall: Boolean,
-        holidays: Boolean,
+        weekDayAvailability: {
+            type: Boolean,
+            default: false,
+        },
+        weekendAvailability: {
+            type: Boolean,
+            default: false,
+        },
+        dayShift: {
+            type: Boolean,
+            default: false,
+        },
+        eveningShift: {
+            type: Boolean,
+            default: false,
+        },
+        onCall: {
+            type: Boolean,
+            default: false,
+        },
+        holidays: {
+            type: Boolean,
+            default: false,
+        },
     },
     preferredStartDate: Date,
     numberOfPositions: Number,

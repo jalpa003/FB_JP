@@ -4,6 +4,7 @@ const uploadMiddleware = require('../middleware/upload');
 const authRoutes = require('../controller/authController');
 const candidateRoutes = require('../controller/candidate');
 const employerRoutes = require('../controller/employer');
+const jobsRoutes = require('../controller/jobs');
 
 //authentication Routes
 router.post('/candidate_registration', uploadMiddleware, authRoutes.candidateRegistration);
@@ -20,6 +21,7 @@ router.post('/canidate-profile', middleware.verifyToken, candidateRoutes.complet
 //Employer Profile Routes
 router.post('/employer-profile', middleware.verifyToken, employerRoutes.createEmployerProfile);
 router.get('/get_single_employee/:employeeId', middleware.verifyToken, employerRoutes.getSingleEmployeeById);
+router.post('/create_job', middleware.verifyToken, jobsRoutes.createJobPosting);
 
 router.post('/create_emp_profile', middleware.verifyToken, employerRoutes.createEmployerProfile)
 router.get('/get_all_employees', middleware.verifyToken, employerRoutes.getAllEmployers)

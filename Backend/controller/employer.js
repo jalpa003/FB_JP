@@ -60,7 +60,6 @@ module.exports.createEmployerProfile = async (req, res) => {
     }
 }
 
-//get all employers with filters, pagination and serach&sorting
 module.exports.getAllEmployers = async (req, res) => {
     try {
         // Sorting
