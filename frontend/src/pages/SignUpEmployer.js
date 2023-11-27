@@ -41,7 +41,7 @@ function EmployerSignUp() {
     const handleSubmit = async (values) => {
         try {
             // Make API request to employer sign-up endpoint
-            const response = await axios.post('http://localhost:3003/employer_registration', values);
+            const response = await axios.post('https://fb-jp-backend.onrender.com/employer_registration', values);
             if (response.status === 201) {
                 toast.success(response.data.message);
                 setSent(true);
