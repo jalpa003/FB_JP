@@ -49,7 +49,7 @@ function EmployerSignUp() {
                 setTimeout(() => {
                     // Redirect to login page
                     navigate('/sign-in/employer');
-                }, 2500);
+                }, 1500);
             }
             else {
                 // Show error toast

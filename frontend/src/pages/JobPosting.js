@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Field, Form, FormSpy } from 'react-final-form';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
@@ -6,7 +6,6 @@ import Grid from '@mui/material/Grid';
 import Paper from '../component/Paper';
 import AppAppBar from '../component/AppAppBar';
 import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
 import RFTextField from '../form/RFTextField';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -17,24 +16,92 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { jwtDecode as jwt_decode } from 'jwt-decode';
 
 const JobPostingForm = () => {
     const navigate = useNavigate();
     const [sent, setSent] = useState(false);
 
-
     const validate = (values) => {
-        // Implement your validation logic here if needed
         const errors = {};
+        // Check for required fields
+        if (!values.jobTitle) {
+            errors.jobTitle = 'Job Title is required';
+        }
+
+        if (!values.jobDescription) {
+            errors.jobDescription = 'Job Description is required';
+        }
+        
         return errors;
     };
 
-    const handleSubmit = (values) => {
-        // Implement your form submission logic here
-        console.log(values);
-    };
+    const handleSubmit = async (values) => {
+        try {
+            // Convert checkbox values to boolean
+            // const transformedValues = {
+            //     ...values,
+            //     jobRequirements: {
+            //         smartServe: !!values.jobRequirements.smartServe,
+            //         culinaryTraining: !!values.jobRequirements.culinaryTraining,
+            //         redSeal: !!values.jobRequirements.redSeal,
+            //     },
+            //     workSchedule: {
+            //         weekDayAvailability: !!values.workSchedule.weekDayAvailability,
+            //         weekendAvailability: !!values.workSchedule.weekendAvailability,
+            //         dayShift: !!values.workSchedule.dayShift,
+            //         eveningShift: !!values.workSchedule.eveningShift,
+            //         onCall: !!values.workSchedule.onCall,
+            //         holidays: !!values.workSchedule.holidays,
+            //     },
+            //     supplementalPay: {
+            //         overtime: !!values.supplementalPay.overtime,
+            //         bonusPay: !!values.supplementalPay.bonusPay,
+            //         tips: !!values.supplementalPay.tips,
+            //         signingBonus: !!values.supplementalPay.signingBonus,
+            //         retentionBonus: !!values.supplementalPay.retentionBonus,
+            //     },
+            //     benefitsOffered: {
+            //         dentalCare: !!values.benefitsOffered.dentalCare,
+            //         extendedHealthCare: !!values.benefitsOffered.extendedHealthCare,
+            //         lifeInsurance: !!values.benefitsOffered.lifeInsurance,
+            //         rrspMatch: !!values.benefitsOffered.rrspMatch,
+            //         paidTimeOff: !!values.benefitsOffered.paidTimeOff,
+            //         onSiteParking: !!values.benefitsOffered.onSiteParking,
+            //         employeeAssistanceProgram: !!values.benefitsOffered.employeeAssistanceProgram,
+            //         discountedOrFreeFoodBeverage: !!values.benefitsOffered.discountedOrFreeFoodBeverage,
+            //         tuitionReimbursement: !!values.benefitsOffered.tuitionReimbursement,
+            //         wellnessProgram: !!values.benefitsOffered.wellnessProgram,
+            //         profitSharing: !!values.benefitsOffered.profitSharing,
+            //         relocationAssistance: !!values.benefitsOffered.relocationAssistance,
+            //         flexibleSchedule: !!values.benefitsOffered.flexibleSchedule,
+            //     },
+            // };
 
+            // Retrieve the token from localStorage
+            const token = localStorage.getItem('token');
+            console.log(token);
+
+            // Make API request
+            const response = await axios.post('http://localhost:3003/create_job', values,
+                { headers: { 'Authorization': `${token}` } });
+
+            if (response.status === 201) {
+                toast.success(response.data.message)
+                setSent(true);
+
+                setTimeout(() => {
+                    navigate('/job-listing');
+                }, 1500);
+            }
+            else {
+                toast.error(response.data.message)
+            }
+        } catch (error) {
+            const errorData = error.response.data;
+            console.log(errorData.messages);
+            toast.error(errorData.messages)
+        }
+    };
     return (
         <React.Fragment>
             <AppAppBar />
@@ -130,7 +197,7 @@ const JobPostingForm = () => {
                                                     <Field
                                                         type="checkbox"
                                                         component={Checkbox}
-                                                        name="smartServe"
+                                                        name="jobRequirements.smartServe"
                                                     />
                                                 }
                                                 label="Smart Serve"
@@ -140,7 +207,7 @@ const JobPostingForm = () => {
                                                     <Field
                                                         type="checkbox"
                                                         component={Checkbox}
-                                                        name="culinaryTraining"
+                                                        name="jobRequirements.culinaryTraining"
                                                     />
                                                 }
                                                 label="Culinary Training"
@@ -150,7 +217,7 @@ const JobPostingForm = () => {
                                                     <Field
                                                         type="checkbox"
                                                         component={Checkbox}
-                                                        name="redSeal"
+                                                        name="jobRequirements.redSeal"
                                                     />
                                                 }
                                                 label="Red Seal"
@@ -197,8 +264,10 @@ const JobPostingForm = () => {
                                                 name="jobType"
                                                 fullWidth
                                                 select
+                                                SelectProps={{ native: true }}
                                                 required
                                             >
+                                                <option value="">Select</option>
                                                 <option value="fullTime">Full-time</option>
                                                 <option value="partTime">Part-time</option>
                                                 <option value="internship">Internship</option>
@@ -228,7 +297,7 @@ const JobPostingForm = () => {
                                                     <Field
                                                         type="checkbox"
                                                         component={Checkbox}
-                                                        name="weekDayAvailability"
+                                                        name="workSchedule.weekDayAvailability"
                                                     />
                                                 }
                                                 label="Week Day Availability"
@@ -238,7 +307,7 @@ const JobPostingForm = () => {
                                                     <Field
                                                         type="checkbox"
                                                         component={Checkbox}
-                                                        name="weekendAvailability"
+                                                        name="workSchedule.weekendAvailability"
                                                     />
                                                 }
                                                 label="WeekEnd Availability"
@@ -248,7 +317,7 @@ const JobPostingForm = () => {
                                                     <Field
                                                         type="checkbox"
                                                         component={Checkbox}
-                                                        name="dayShift"
+                                                        name="workSchedule.dayShift"
                                                     />
                                                 }
                                                 label="Day Shifts"
@@ -258,7 +327,7 @@ const JobPostingForm = () => {
                                                     <Field
                                                         type="checkbox"
                                                         component={Checkbox}
-                                                        name="eveningShift"
+                                                        name="workSchedule.eveningShift"
                                                     />
                                                 }
                                                 label="Evening Shifts"
@@ -268,7 +337,7 @@ const JobPostingForm = () => {
                                                     <Field
                                                         type="checkbox"
                                                         component={Checkbox}
-                                                        name="onCall"
+                                                        name="workSchedule.onCall"
                                                     />
                                                 }
                                                 label="On Call"
@@ -278,18 +347,11 @@ const JobPostingForm = () => {
                                                     <Field
                                                         type="checkbox"
                                                         component={Checkbox}
-                                                        name="holidays"
+                                                        name="workSchedule.holidays"
                                                     />
                                                 }
                                                 label="Holidays"
                                             />
-
-
-
-
-
-
-
                                         </Grid>
                                         {/* <Grid item xs={12} sm={6}>
                                             <Field
@@ -336,7 +398,7 @@ const JobPostingForm = () => {
                                                     <Field
                                                         type="checkbox"
                                                         component={Checkbox}
-                                                        name="overtime"
+                                                        name="supplementalPay.overtime"
                                                     />
                                                 }
                                                 label="Overtime"
@@ -346,7 +408,7 @@ const JobPostingForm = () => {
                                                     <Field
                                                         type="checkbox"
                                                         component={Checkbox}
-                                                        name="bonusPay"
+                                                        name="supplementalPay.bonusPay"
                                                     />
                                                 }
                                                 label="Bonus Pay"
@@ -356,7 +418,7 @@ const JobPostingForm = () => {
                                                     <Field
                                                         type="checkbox"
                                                         component={Checkbox}
-                                                        name="tips"
+                                                        name="supplementalPay.tips"
                                                     />
                                                 }
                                                 label="Tips"
@@ -366,7 +428,7 @@ const JobPostingForm = () => {
                                                     <Field
                                                         type="checkbox"
                                                         component={Checkbox}
-                                                        name="signingBonus"
+                                                        name="supplementalPay.signingBonus"
                                                     />
                                                 }
                                                 label="Signing Bonus"
@@ -376,7 +438,7 @@ const JobPostingForm = () => {
                                                     <Field
                                                         type="checkbox"
                                                         component={Checkbox}
-                                                        name="retentionBonus"
+                                                        name="supplementalPay.retentionBonus"
                                                     />
                                                 }
                                                 label="Retention Bonus"

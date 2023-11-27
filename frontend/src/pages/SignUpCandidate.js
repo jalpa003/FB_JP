@@ -47,7 +47,7 @@ function CandidateSignUp() {
                 setTimeout(() => {
                     // Redirect to login page
                     navigate('/sign-in/candidate');
-                }, 2500);
+                }, 1500);
             }
             else {
                 // Show error toast
