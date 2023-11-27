@@ -31,7 +31,7 @@ const JobPostingForm = () => {
         if (!values.jobDescription) {
             errors.jobDescription = 'Job Description is required';
         }
-        
+
         return errors;
     };
 
@@ -82,7 +82,7 @@ const JobPostingForm = () => {
             console.log(token);
 
             // Make API request
-            const response = await axios.post('http://localhost:3003/create_job', values,
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/create_job`, values,
                 { headers: { 'Authorization': `${token}` } });
 
             if (response.status === 201) {

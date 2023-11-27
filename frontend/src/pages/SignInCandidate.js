@@ -38,7 +38,7 @@ function CandidateSignIn() {
     const handleSubmit = async (values) => {
         try {
             // Make API request to candidate sign-in endpoint
-             const response = await axios.post('http://localhost:3003/user_login', values);
+             const response = await axios.post(`${process.env.REACT_APP_API_URL}/user_login`, values);
             if (response.status === 200) {
                 toast.success(response.data.message);
                 setSent(true);

@@ -37,9 +37,8 @@ function EmployerSignIn() {
 
     const handleSubmit = async (values) => {
         try {
-            // Make API request to candidate sign-in endpoint
-            const response = await axios.post('http://localhost:3003/user_login', values);
-            if (response.status === 200) {
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/user_login`, values);
+            if (response && response.status === 200) {
                 // Store the token in localStorage
                 localStorage.setItem('token', response.data.token);
 
@@ -52,11 +51,11 @@ function EmployerSignIn() {
                 }, 1500);
             } else {
                 // Show error toast
-                toast.error(response.data.message);
+                toast.error(response ? response.data.message : 'Unknown error');
             }
         } catch (error) {
             console.error(error);
-            const errorData = error.response.data;
+            const errorData = error.response ? error.response.data : 'Unknown error';
             toast.error(errorData);
         }
     };
