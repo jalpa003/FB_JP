@@ -39,7 +39,7 @@ function CandidateSignUp() {
     const handleSubmit = async (values) => {
         try {
             // Make API request to candidate sign-up endpoint
-            const response = await axios.post('https://fb-jp-backend.onrender.com/candidate_registration', values);
+            const response = await axios.post('http://localhost:3003/candidate_registration', values);
             if (response.status === 201) {
                 toast.success(response.data.message);
                 setSent(true);
