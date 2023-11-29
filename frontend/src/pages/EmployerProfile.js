@@ -34,7 +34,7 @@ function EmployerProfile() {
 
                 // Extract the user ID from decoded information
                 // const employeeId = decodedToken.id;
-                
+
                 const response = await axios.get(`${process.env.REACT_APP_API_URL}/get_single_employee`, {
                     headers: {
                         Authorization: `${token}`
@@ -66,7 +66,7 @@ function EmployerProfile() {
             const token = localStorage.getItem('token');
 
             // Make API request to complete employer profile
-            const response = await axios.post('http://localhost:3003/employer-profile', values,
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/employer-profile`, values,
                 { headers: { 'Authorization': `${token}` } });
 
             if (response.status === 200) {
@@ -152,7 +152,7 @@ function EmployerProfile() {
                                 fullWidth
                                 label="Phone Number"
                                 name="phone"
-                                // required
+                            // required
                             />
                             <Field
                                 component={RFTextField}
