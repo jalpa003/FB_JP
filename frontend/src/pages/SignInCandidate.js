@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Typography from '../component/Typography';
 // import AppFooter from './AppFooter';
-import AppAppBar from '../component/Typography';
+import AppAppBar from '../component/AppAppBar';
 import AppForm from '../component/AppForm';
 import { email, required } from '../form/validation';
 import RFTextField from '../form/RFTextField';
@@ -38,7 +38,7 @@ function CandidateSignIn() {
     const handleSubmit = async (values) => {
         try {
             // Make API request to candidate sign-in endpoint
-             const response = await axios.post(`${process.env.REACT_APP_API_URL}/user_login`, values);
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/user_login`, values);
             if (response.status === 200) {
                 toast.success(response.data.message);
                 setSent(true);
