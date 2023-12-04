@@ -31,55 +31,20 @@ const JobPostingForm = () => {
         if (!values.jobDescription) {
             errors.jobDescription = 'Job Description is required';
         }
+        if (!values.jobType) {
+            errors.jobType = 'Job Type is required';
+        }
+        if (!values.jobLocation) {
+            errors.jobLocation = 'Job Location is required';
+        }
 
         return errors;
     };
 
     const handleSubmit = async (values) => {
         try {
-            // Convert checkbox values to boolean
-            // const transformedValues = {
-            //     ...values,
-            //     jobRequirements: {
-            //         smartServe: !!values.jobRequirements.smartServe,
-            //         culinaryTraining: !!values.jobRequirements.culinaryTraining,
-            //         redSeal: !!values.jobRequirements.redSeal,
-            //     },
-            //     workSchedule: {
-            //         weekDayAvailability: !!values.workSchedule.weekDayAvailability,
-            //         weekendAvailability: !!values.workSchedule.weekendAvailability,
-            //         dayShift: !!values.workSchedule.dayShift,
-            //         eveningShift: !!values.workSchedule.eveningShift,
-            //         onCall: !!values.workSchedule.onCall,
-            //         holidays: !!values.workSchedule.holidays,
-            //     },
-            //     supplementalPay: {
-            //         overtime: !!values.supplementalPay.overtime,
-            //         bonusPay: !!values.supplementalPay.bonusPay,
-            //         tips: !!values.supplementalPay.tips,
-            //         signingBonus: !!values.supplementalPay.signingBonus,
-            //         retentionBonus: !!values.supplementalPay.retentionBonus,
-            //     },
-            //     benefitsOffered: {
-            //         dentalCare: !!values.benefitsOffered.dentalCare,
-            //         extendedHealthCare: !!values.benefitsOffered.extendedHealthCare,
-            //         lifeInsurance: !!values.benefitsOffered.lifeInsurance,
-            //         rrspMatch: !!values.benefitsOffered.rrspMatch,
-            //         paidTimeOff: !!values.benefitsOffered.paidTimeOff,
-            //         onSiteParking: !!values.benefitsOffered.onSiteParking,
-            //         employeeAssistanceProgram: !!values.benefitsOffered.employeeAssistanceProgram,
-            //         discountedOrFreeFoodBeverage: !!values.benefitsOffered.discountedOrFreeFoodBeverage,
-            //         tuitionReimbursement: !!values.benefitsOffered.tuitionReimbursement,
-            //         wellnessProgram: !!values.benefitsOffered.wellnessProgram,
-            //         profitSharing: !!values.benefitsOffered.profitSharing,
-            //         relocationAssistance: !!values.benefitsOffered.relocationAssistance,
-            //         flexibleSchedule: !!values.benefitsOffered.flexibleSchedule,
-            //     },
-            // };
-
             // Retrieve the token from localStorage
             const token = localStorage.getItem('token');
-            console.log(token);
 
             // Make API request
             const response = await axios.post(`${process.env.REACT_APP_API_URL}/create_job`, values,
@@ -108,6 +73,7 @@ const JobPostingForm = () => {
             <Box
                 sx={{
                     display: 'flex',
+                    backgroundImage: 'url(/images/productCurvyLines.png)',
                     alignItems: 'center',
                     justifyContent: 'center',
                     minHeight: '70vh',
@@ -123,7 +89,6 @@ const JobPostingForm = () => {
                             Job Posting
                         </Typography>
 
-                        {/* Your Form Content */}
                         <Form
                             onSubmit={handleSubmit}
                             subscription={{ submitting: true }}
@@ -131,9 +96,6 @@ const JobPostingForm = () => {
                         >
                             {({ handleSubmit: handleSubmit2, submitting }) => (
                                 <Box component="form" onSubmit={handleSubmit2} noValidate>
-                                    {/* <Typography variant="h6" gutterBottom marked="center" align='center'>
-                                        Describe the Job
-                                    </Typography> */}
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} sm={6}>
                                             <Field
@@ -179,7 +141,6 @@ const JobPostingForm = () => {
                                                 label="Hours Per Week"
                                                 name="hoursPerWeek"
                                                 fullWidth
-                                                required
                                             />
                                         </Grid>
                                     </Grid>
@@ -196,8 +157,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="jobRequirements.smartServe"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Smart Serve"
@@ -206,8 +167,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="jobRequirements.culinaryTraining"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Culinary Training"
@@ -216,8 +177,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="jobRequirements.redSeal"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Red Seal"
@@ -296,8 +257,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="workSchedule.weekDayAvailability"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Week Day Availability"
@@ -306,8 +267,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="workSchedule.weekendAvailability"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="WeekEnd Availability"
@@ -316,8 +277,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="workSchedule.dayShift"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Day Shifts"
@@ -326,8 +287,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="workSchedule.eveningShift"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Evening Shifts"
@@ -336,8 +297,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="workSchedule.onCall"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="On Call"
@@ -346,24 +307,13 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="workSchedule.holidays"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Holidays"
                                             />
                                         </Grid>
-                                        {/* <Grid item xs={12} sm={6}>
-                                            <Field
-                                                component={RFTextField}
-                                                disabled={submitting || sent}
-                                                label="Salary"
-                                                name="salary"
-                                                type="number"
-                                                fullWidth
-                                            >
-                                            </Field>
-                                        </Grid> */}
                                     </Grid>
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} sm={6}>
@@ -397,8 +347,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="supplementalPay.overtime"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Overtime"
@@ -407,8 +357,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="supplementalPay.bonusPay"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Bonus Pay"
@@ -417,8 +367,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="supplementalPay.tips"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Tips"
@@ -427,8 +377,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="supplementalPay.signingBonus"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Signing Bonus"
@@ -437,8 +387,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="supplementalPay.retentionBonus"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Retention Bonus"
@@ -454,8 +404,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="benefitsOffered.dentalCare"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Dental Care"
@@ -464,8 +414,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="benefitsOffered.extendedHealthCare"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Extended Health Care"
@@ -474,8 +424,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="benefitsOffered.lifeInsurance"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Life Insurance"
@@ -484,8 +434,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="benefitsOffered.rrspMatch"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="RRSP Match"
@@ -494,8 +444,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="benefitsOffered.paidTimeOff"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Paid Time Off"
@@ -504,8 +454,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="benefitsOffered.onSiteParking"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="On Site Parking"
@@ -514,8 +464,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="benefitsOffered.profitSharing"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Profit Sharing"
@@ -524,8 +474,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="benefitsOffered.flexibleSchedule"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Flexible Schedule"
@@ -534,8 +484,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="benefitsOffered.employeeAssistanceProgram"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Employee Assistance Program"
@@ -544,8 +494,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="benefitsOffered.discountedOrFreeFoodBeverage"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Discounted or Free Food/ Beverages"
@@ -554,8 +504,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="benefitsOffered.tuitionReimbursement"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Tuition Reimbursement"
@@ -564,8 +514,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="benefitsOffered.wellnessProgram"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Wellness Program"
@@ -574,8 +524,8 @@ const JobPostingForm = () => {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        component={Checkbox}
                                                         name="benefitsOffered.relocationAssistance"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }
                                                 label="Relocation Assistance"
@@ -613,7 +563,6 @@ const JobPostingForm = () => {
                                             ) : null
                                         }
                                     </FormSpy>
-
                                     <FormButton
                                         sx={{ mt: 2, mb: 2 }}
                                         disabled={submitting}

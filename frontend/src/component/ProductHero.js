@@ -65,6 +65,7 @@ export default function ProductHero() {
                     variant="filled"
                     sx={{
                         flex: '1',
+                        width: '100%',
                         margin: '0 auto',
                         backgroundColor: 'white',
                         borderRadius: '5px',
@@ -91,6 +92,7 @@ export default function ProductHero() {
                     variant="filled"
                     sx={{
                         flex: '1',
+                        width: '100%',
                         margin: '0 auto',
                         backgroundColor: 'white',
                         borderRadius: '5px',

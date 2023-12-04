@@ -22,6 +22,8 @@ router.post('/canidate-profile', middleware.verifyToken, candidateRoutes.complet
 router.post('/employer-profile', middleware.verifyToken, employerRoutes.createEmployerProfile);
 router.get('/get_single_employee', middleware.verifyToken, employerRoutes.getSingleEmployeeById);
 router.post('/create_job', middleware.verifyToken, jobsRoutes.createJobPosting);
+router.get('/all_jobs/empId', middleware.verifyToken, jobsRoutes.getAllJobsByEmployerID);
+router.delete('/delete_job/:jobId', middleware.verifyToken, jobsRoutes.deleteJobByID)
 
 router.post('/create_emp_profile', middleware.verifyToken, employerRoutes.createEmployerProfile)
 router.get('/get_all_employees', middleware.verifyToken, employerRoutes.getAllEmployers)

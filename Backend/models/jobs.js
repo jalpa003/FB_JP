@@ -32,7 +32,7 @@ const jobSchema = new mongoose.Schema({
     },
     experience: {
         type: String,
-        enum: ['1-3 Years', '3-5 Years', '5-7 Years', '7-10 Years', '10+ Years'],
+        enum: ['1-3', '3-5', '5-7', '7-10', '10+'],
     },
     languageRequirements: String,
     jobType: {

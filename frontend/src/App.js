@@ -11,6 +11,7 @@ import ForgetPassword from './pages/ForegtPassword';
 import EmployerProfile from './pages/EmployerProfile';
 import Profile from './pages/Profile';
 import JobPosting from './pages/JobPosting';
+import JobListing from './pages/JobListing';
 
 const App = () => {
   return (
@@ -27,6 +28,7 @@ const App = () => {
           <Route path="/employer-profile" element={<EmployerProfile />} />
           <Route path="/candidate-profile" element={<Profile />} />
           <Route path="/job-posting" element={<JobPosting />} />
+          <Route path="/job-listing" element={<JobListing />} />
         </Routes>
       </BrowserRouter>
     </>

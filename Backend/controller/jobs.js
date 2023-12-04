@@ -8,7 +8,7 @@ module.exports.createJobPosting = async (req, res) => {
         // Create a new job posting
         const newJob = new JobPost({
             user: userId,
-            ...req.body, // Use the request body to populate the job fields
+            ...req.body,
         });
 
         const saveJob = await newJob.save();
@@ -20,6 +20,47 @@ module.exports.createJobPosting = async (req, res) => {
         handleRegistrationError(error, res);
     }
 }
+
+//get all job posting by employer id
+module.exports.getAllJobsByEmployerID = async (req, res) => {
+    try {
+        const jobs = await JobPost.find({ user: req.user.id });
+        if (!jobs) throw Error("No jobs found");
+        res.status(200).json({ jobs: jobs });
+    }
+    catch (error) {
+        console.error(error);
+        res.send({ statusCode: 500, message: error.message })
+    }
+};
+
+//delete job 
+module.exports.deleteJobByID = async (req, res) => {
+    try {
+        const jobId = req.params.jobId;
+
+        // Check if the job exists
+        const job = await JobPost.findById(jobId);
+        if (!job) {
+            return res.status(404).json({ message: 'Job not found' });
+        }
+
+        // Check if the logged-in user is the owner of the job
+        if (job.user.toString() !== req.user.id) {
+            return res.status(403).json({ message: 'You are not authorized to delete this job' });
+        }
+
+        const deletedJob = await JobPost.deleteOne({ _id: jobId });
+        if (!deletedJob) {
+            return res.status(404).json({ message: "Job not found" });
+        }
+        res.status(200).json({ message: "Deleted Successfully!" });
+    }
+    catch (error) {
+        console.error(error);
+        res.send({ statusCode: 500, message: error.message })
+    }
+};
 
 function handleRegistrationError(error, res) {
     if (error.name === 'ValidationError') {

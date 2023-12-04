@@ -29,24 +29,16 @@ function EmployerProfile() {
                 // Retrieve the token from localStorage
                 const token = localStorage.getItem('token');
 
-                // Decode the token to get user information
-                // const decodedToken = jwt_decode(token);
-
-                // Extract the user ID from decoded information
-                // const employeeId = decodedToken.id;
-
                 const response = await axios.get(`${process.env.REACT_APP_API_URL}/get_single_employee`, {
-                    headers: {
-                        Authorization: `${token}`
-                    }
+                    headers: {Authorization: `${token}`}
                 });
 
                 if (response.status === 200) {
-                    setExistingDetails(response.data.employer);
+                    setExistingDetails(response.data.employerWithUserDetails || response.data.userDetails);
                 }
             } catch (error) {
                 console.error(error);
-                // Handle error or set default values if needed
+                toast.error("An error occurred while retrieving your profile information!")
             }
         };
 

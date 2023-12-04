@@ -14,6 +14,7 @@ import withRoot from '../withRoot';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { jwtDecode as jwt_decode } from 'jwt-decode';
 import axios from 'axios';
 
 function EmployerSignIn() {
@@ -42,13 +43,29 @@ function EmployerSignIn() {
                 // Store the token in localStorage
                 localStorage.setItem('token', response.data.token);
 
-                toast.success(response.data.message);
-                setSent(true);
+                // Decode the token to get user information
+                const decodedToken = jwt_decode(response.data.token);
 
-                // Delay the redirect
-                setTimeout(() => {
-                    navigate('/employer-profile');
-                }, 1500);
+                // Check if the user's profile is completed
+                if (decodedToken.isProfileComplete) {
+                    // Profile is complete, redirect to /job-posting
+                    toast.success(response.data.message);
+                    setSent(true);
+
+                    // Delay the redirect
+                    setTimeout(() => {
+                        navigate('/job-posting');
+                    }, 1500);
+                } else {
+                    // Profile is not complete, redirect to /employer-profile
+                    toast.info('Complete your profile to access job posting.');
+                    setSent(true);
+
+                    // Delay the redirect
+                    setTimeout(() => {
+                        navigate('/employer-profile');
+                    }, 1500);
+                }
             } else {
                 // Show error toast
                 toast.error(response ? response.data.message : 'Unknown error');

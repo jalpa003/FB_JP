@@ -17,6 +17,12 @@ module.exports.createEmployerProfile = async (req, res) => {
         // Check if the employer profile already exists
         let employerProfile = await Employer.findOne({ user: userId });
 
+        const requiredFields = [phone, companyName, numberOfEmployees, fAndBIndustry, companyDescription, streetAddress];
+        if (requiredFields.some((field) => !field)) {
+            // If any required field is missing, set isProfileComplete to false
+            user.isProfileComplete = false;
+        }
+
         if (employerProfile) {
             // Employer profile already exists, update the details
             employerProfile.phone = phone;
@@ -45,12 +51,14 @@ module.exports.createEmployerProfile = async (req, res) => {
         }
 
         // Update the user's profile completion status
-        user.isProfileComplete = true;
+        if (requiredFields.every((field) => !!field)) {
+            user.isProfileComplete = true;
+        }
 
         const userProfile = await user.save();
 
         if (userProfile) {
-            res.status(200).json({ message: 'Employer profile completed successfully' });
+            res.status(200).json({ message: 'Employer profile saved successfully' });
         } else {
             res.status(500).json({ message: 'Error completing employer profile' });
         }
@@ -109,15 +117,34 @@ module.exports.getSingleEmployeeById = async (req, res) => {
     try {
         const userId = req.user.id;
 
-        // Use Mongoose's populate to get details from the referenced User model
-        const employer = await User.findOne({ _id: userId })
-        // .populate('EmployerProfile', 'phone companyName numberOfEmployees fAndBIndustry');
+        // Find the employer details
+        const employer = await Employer.findOne({ user: userId }).populate('user');
 
+        // If employer not found, find user details
         if (!employer) {
-            return res.status(404).json({ success: false, message: 'Employer not found' });
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+
+            // Return user details if employer not found
+            const userDetails = {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+            };
+
+            return res.status(200).json({ success: true, userDetails });
         }
 
-        res.status(200).json({ success: true, employer });
+        // Merge user details into the employer object
+        const employerWithUserDetails = {
+            ...employer.toObject(),
+            ...employer.user.toObject(),
+            user: undefined,
+        };
+
+        res.status(200).json({ success: true, employerWithUserDetails });
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Internal Server Error' });
