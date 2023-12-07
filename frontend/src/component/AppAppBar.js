@@ -56,7 +56,7 @@ function AppAppBar() {
                         {'Serve Success'}
                     </Link>
                     <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-                        {isLoggedIn && (
+                        {isLoggedIn ? (
                             <>
                                 <Link
                                     color="inherit"
@@ -84,6 +84,27 @@ function AppAppBar() {
                                     sx={{ ...rightLink, color: 'secondary.main' }}
                                 >
                                     {'Logout'}
+                                </Link>
+                            </>
+                        ) : (
+                            <>
+                                <Link
+                                    color="inherit"
+                                    variant="h6"
+                                    underline="none"
+                                    href="/Sign In"
+                                    sx={rightLink}
+                                >
+                                    {'Sign In'}
+                                </Link>
+                                <Link
+                                    color="inherit"
+                                    variant="h6"
+                                    underline="none"
+                                    href="/Sign Up"
+                                    sx={{ ...rightLink, color: 'secondary.main' }}
+                                >
+                                    {'Sign Up'}
                                 </Link>
                             </>
                         )}

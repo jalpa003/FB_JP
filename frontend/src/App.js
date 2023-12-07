@@ -3,8 +3,10 @@ import './App.css';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
 import withRoot from './withRoot';
+import SignUp from './pages/SignUp';
 import SignUpCandidate from './pages/SignUpCandidate';
 import SignUpEmployer from './pages/SignUpEmployer';
+import SignIn from './pages/SignIn';
 import SignInCandidate from './pages/SignInCandidate';
 import SignInEmployer from './pages/SignInEmployer';
 import ForgetPassword from './pages/ForegtPassword';
@@ -20,8 +22,10 @@ const App = () => {
         <Routes>
           <Route path='/' element={<Home />} />
           <Route path='*' element={<NotFound />} />
+          <Route path="/Sign Up" element={<SignUp />} />
           <Route path="/sign-up/candidate" element={<SignUpCandidate />} />
           <Route path="/sign-up/employer" element={<SignUpEmployer />} />
+          <Route path="/Sign In" element={<SignIn />} />
           <Route path="/sign-in/candidate" element={<SignInCandidate />} />
           <Route path="/sign-in/employer" element={<SignInEmployer />} />
           <Route path="/forget-password" element={<ForgetPassword />} />

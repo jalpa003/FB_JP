@@ -7,7 +7,7 @@ import Paper from '@mui/material/Paper';
 import AppAppBar from '../component/AppAppBar';
 import withRoot from '../withRoot';
 
-const SignInOptions = () => {
+const SignUpOptions = () => {
     const navigate = useNavigate();
     const [selectedOption, setSelectedOption] = useState('');
 
@@ -15,11 +15,11 @@ const SignInOptions = () => {
         setSelectedOption(option);
     };
 
-    const handleSignIn = () => {
+    const handleSignUp = () => {
         if (selectedOption === 'employer') {
-            navigate('/sign-in/employer');
+            navigate('/sign-up/employer');
         } else if (selectedOption === 'candidate') {
-            navigate('/sign-in/candidate');
+            navigate('/sign-up/candidate');
         }
     };
 
@@ -32,7 +32,7 @@ const SignInOptions = () => {
                     alignItems: 'center',
                     justifyContent: 'space-around',
                     minHeight: '90.8vh',
-                    backgroundImage: 'url("https://tinyurl.com/2m7dhx6k")',
+                    backgroundImage: 'url("https://shorturl.at/mpBDO")',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                 }}
@@ -58,13 +58,13 @@ const SignInOptions = () => {
                             padding: 3,
                             backgroundColor: selectedOption === 'employer' ? '#c7cdd4' : '#fff',
                             cursor: 'pointer',
-                            transition: 'background-color 0.3s',
+                            transition: 'background-color 0.5s',
                             marginBottom: '1rem',
                         }}
                         onClick={() => handleOptionClick('employer')}
                     >
                         <Typography variant="h6" align="center" color="primary.main">
-                            Sign In as Employer
+                            Register as Employer
                         </Typography>
                     </Paper>
                     <Paper
@@ -77,7 +77,7 @@ const SignInOptions = () => {
                         onClick={() => handleOptionClick('candidate')}
                     >
                         <Typography variant="h6" align="center" color="secondary.main">
-                            Sign In as Candidate
+                            Register as Candidate
                         </Typography>
                     </Paper>
                     {selectedOption && (
@@ -86,9 +86,9 @@ const SignInOptions = () => {
                             color="primary"
                             size="large"
                             sx={{ mt: 2 }}
-                            onClick={handleSignIn}
+                            onClick={handleSignUp}
                         >
-                            Sign In
+                            Sign Up
                         </Button>
                     )}
                 </Box>
@@ -97,4 +97,4 @@ const SignInOptions = () => {
     );
 };
 
-export default withRoot(SignInOptions);
+export default withRoot(SignUpOptions);
