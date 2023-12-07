@@ -20,6 +20,7 @@ function EmployerProfile() {
     const navigate = useNavigate();
     const [sent, setSent] = useState(false);
     const [existingDetails, setExistingDetails] = useState({});
+    console.log(existingDetails.isProfileComplete);
 
 
     useEffect(() => {
@@ -30,7 +31,7 @@ function EmployerProfile() {
                 const token = localStorage.getItem('token');
 
                 const response = await axios.get(`${process.env.REACT_APP_API_URL}/get_single_employee`, {
-                    headers: {Authorization: `${token}`}
+                    headers: { Authorization: `${token}` }
                 });
 
                 if (response.status === 200) {
@@ -221,7 +222,7 @@ function EmployerProfile() {
                                 color="secondary"
                                 fullWidth
                             >
-                                {submitting ? 'In progress…' : sent ? 'Success!' : 'Complete Profile'}
+                                {submitting ? 'In progress…' : sent ? 'Success!' : existingDetails.isProfileComplete ? 'Save Profile' : 'Complete Profile'}
                             </FormButton>
                         </Box>
                     )}
