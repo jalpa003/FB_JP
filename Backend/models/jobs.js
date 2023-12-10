@@ -29,6 +29,10 @@ const jobSchema = new mongoose.Schema({
             type: Boolean,
             default: false
         },
+        mixologyTraining:{
+            type: Boolean,
+            default: false
+        }
     },
     experience: {
         type: String,
@@ -68,16 +72,16 @@ const jobSchema = new mongoose.Schema({
     },
     preferredStartDate: Date,
     numberOfPositions: Number,
+    showWageRate: {
+        type: Boolean,
+        default: false,
+    },
+    payAmount: {
+        type: String,
+    },
     payRate: {
-        showPayBy: {
-            type: String,
-            enum: ['Range', 'Starting Amount', 'Maximum Amount', 'Exact Amount'],
-        },
-        amount: Number,
-        rate: {
-            type: String,
-            enum: ['per hour', 'per week', 'per month', 'per year'],
-        },
+        type: String,
+        enum: ['perHour', 'perYear']
     },
     supplementalPay: {
         overtime: {

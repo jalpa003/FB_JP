@@ -2,6 +2,8 @@ const User = require('../models/users');
 const Candidate = require('../models/candidates');
 const jwt = require("jsonwebtoken");
 const upload = require('../middleware/upload');
+const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
 
 //create user registration api
 module.exports.candidateRegistration = async (req, res) => {
@@ -151,6 +153,63 @@ module.exports.getUserDetails = async (req, res) => {
     }
 }
 
+//forget password
+module.exports.forgotPassword = async (req, res) => {
+    try {
+        let email = req.body.email;
+
+        // Check if the user with the provided email exists
+        let user = await User.findOne({ email });
+        if (!user) {
+            res.status(404).json({ message: "No such user found" });
+        }
+
+        // Generate a random reset token
+        const resetToken = crypto.randomBytes(20).toString('hex');
+
+        // Save the reset token and expiry time to the user object
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = Date.now() + 3600000; // Token expires in 1 hour
+
+        //update the user with a temporary token and expiry date for that token
+        await User.updateOne({ email }
+            , {
+                $set: { resetToken: resetToken, },
+                $currentDate: { lastModified: true }
+            });
+
+        // Send reset password email with the reset link
+        const transporter = nodemailer.createTransport({
+            // Your email service configuration
+            service: 'gmail',
+            auth: {
+                user: 'your-email@gmail.com',
+                pass: 'your-password'
+            }
+        });
+
+        // Create a nodemailer transporter
+        const mailOptions = {
+            from: process.env.EMAIL_FROM,
+            to: email,
+            subject: 'Password Reset',
+            text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n`
+                + `Please click on the following link, or paste this into your browser to complete the process:\n\n`
+                + `${process.env.CLIENT_URL}/reset-password/${resetToken}\n\n`
+                + `If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+        };
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ message: 'Failed to send reset password email' });
+            }
+            res.status(200).json({ message: 'Reset password email sent successfully. Check your email for instructions.' });
+        })
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
 
 function handleRegistrationError(error, res) {
     if (error.name === 'ValidationError') {

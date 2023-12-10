@@ -23,6 +23,8 @@ router.post('/employer-profile', middleware.verifyToken, employerRoutes.createEm
 router.get('/get_single_employee', middleware.verifyToken, employerRoutes.getSingleEmployeeById);
 router.post('/create_job', middleware.verifyToken, jobsRoutes.createJobPosting);
 router.get('/all_jobs/empId', middleware.verifyToken, jobsRoutes.getAllJobsByEmployerID);
+router.get('/get_single_job/:jobId', middleware.verifyToken, jobsRoutes.getJobById)
+router.put('/update_job/:jobId', middleware.verifyToken, jobsRoutes.editJobByID)
 router.delete('/delete_job/:jobId', middleware.verifyToken, jobsRoutes.deleteJobByID)
 
 router.post('/create_emp_profile', middleware.verifyToken, employerRoutes.createEmployerProfile)

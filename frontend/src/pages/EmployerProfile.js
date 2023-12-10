@@ -54,7 +54,6 @@ function EmployerProfile() {
 
     const handleSubmit = async (values) => {
         try {
-
             // Retrieve the token from localStorage
             const token = localStorage.getItem('token');
 

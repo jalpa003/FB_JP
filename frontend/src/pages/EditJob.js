@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Field, Form, FormSpy } from 'react-final-form';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
@@ -14,32 +14,44 @@ import FormButton from '../form/FormButton';
 import FormFeedback from '../form/FormFeedback';
 import withRoot from '../withRoot';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const JobPostingForm = () => {
+const EditJobPostingForm = () => {
     const navigate = useNavigate();
+    const { jobId } = useParams();
     const [sent, setSent] = useState(false);
     const [showWageRate, setShowWageRate] = useState(true);
+    const [initialValues, setInitialValues] = useState({});
+
+    useEffect(() => {
+        // Fetch existing job details when the component mounts
+        const fetchJobDetails = async () => {
+            try {
+                // Retrieve the token from localStorage
+                const token = localStorage.getItem('token');
+
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/get_single_job/${jobId}`, {
+                    headers: { Authorization: `${token}` },
+                });
+
+                if (response.status === 200) {
+                    setShowWageRate(response.data.job.showWageRate || false);
+                    setInitialValues(response.data.job);
+                }
+            } catch (error) {
+                console.error(error);
+                toast.error('An error occurred while retrieving job details!');
+            }
+        };
+
+        fetchJobDetails();
+    }, [jobId]);
 
     const validate = (values) => {
         const errors = {};
-        // Check for required fields
-        if (!values.jobTitle) {
-            errors.jobTitle = 'Job Title is required';
-        }
-
-        if (!values.jobDescription) {
-            errors.jobDescription = 'Job Description is required';
-        }
-        if (!values.jobType) {
-            errors.jobType = 'Job Type is required';
-        }
-        if (!values.jobLocation) {
-            errors.jobLocation = 'Job Location is required';
-        }
-
+        // Add validation logic if needed
         return errors;
     };
 
@@ -48,27 +60,30 @@ const JobPostingForm = () => {
             // Retrieve the token from localStorage
             const token = localStorage.getItem('token');
 
-            // Make API request
-            const response = await axios.post(`${process.env.REACT_APP_API_URL}/create_job`, { ...values, showWageRate },
-                { headers: { 'Authorization': `${token}` } });
+            // Make API request to update the job posting
+            const response = await axios.put(
+                `${process.env.REACT_APP_API_URL}/update_job/${jobId}`,
+                { ...values, showWageRate },
+                { headers: { Authorization: `${token}` } }
+            );
 
-            if (response.status === 201) {
-                toast.success(response.data.message)
+            if (response.status === 200) {
+                toast.success(response.data.message);
                 setSent(true);
 
                 setTimeout(() => {
-                    navigate('/job-listing');
+                    navigate(`/job-listing`);
                 }, 1500);
-            }
-            else {
-                toast.error(response.data.message)
+            } else {
+                toast.error(response.data.message);
             }
         } catch (error) {
             const errorData = error.response.data;
             console.log(errorData.messages);
-            toast.error(errorData.messages)
+            toast.error(errorData.messages);
         }
     };
+
     return (
         <React.Fragment>
             <AppAppBar />
@@ -88,11 +103,12 @@ const JobPostingForm = () => {
                         sx={{ py: { xs: 4, md: 5 }, px: { xs: 3, md: 6 } }}
                     >
                         <Typography variant="h4" gutterBottom marked="center" align="center">
-                            Job Posting
+                            Edit Job Posting
                         </Typography>
 
                         <Form
                             onSubmit={handleSubmit}
+                            initialValues={initialValues}
                             subscription={{ submitting: true }}
                             validate={validate}
                         >
@@ -146,13 +162,6 @@ const JobPostingForm = () => {
                                             />
                                         </Grid>
                                     </Grid>
-                                    {/* <Field
-                                        name="uploadFile"
-                                        component={TextField}
-                                        fullWidth
-                                        label="Upload a PDF or DOCX"
-                                        type="file"
-                                    /> */}
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} sm={10}>
                                             <FormControlLabel
@@ -627,7 +636,7 @@ const JobPostingForm = () => {
                                         color="secondary"
                                         fullWidth
                                     >
-                                        {submitting ? 'In progress…' : 'Submit Job Posting'}
+                                        {submitting ? 'In progress…' : 'Update Job Posting'}
                                     </FormButton>
                                 </Box>
                             )}
@@ -636,9 +645,8 @@ const JobPostingForm = () => {
                 </Container>
             </Box>
             <ToastContainer />
-        </React.Fragment >
-
+        </React.Fragment>
     );
 };
 
-export default withRoot(JobPostingForm);
+export default withRoot(EditJobPostingForm);

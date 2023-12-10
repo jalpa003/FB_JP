@@ -36,7 +36,7 @@ function ForgotPassword() {
             <AppAppBar />
             <AppForm>
                 <React.Fragment>
-                    <Typography variant="h3" gutterBottom marked="center" align="center">
+                    <Typography variant="h4" gutterBottom marked="center" align="center">
                         Forgot your password?
                     </Typography>
                     <Typography variant="body2" align="center">

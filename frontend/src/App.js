@@ -14,6 +14,7 @@ import EmployerProfile from './pages/EmployerProfile';
 import Profile from './pages/Profile';
 import JobPosting from './pages/JobPosting';
 import JobListing from './pages/JobListing';
+import EditJob from './pages/EditJob';
 
 const App = () => {
   return (
@@ -33,6 +34,7 @@ const App = () => {
           <Route path="/candidate-profile" element={<Profile />} />
           <Route path="/job-posting" element={<JobPosting />} />
           <Route path="/job-listing" element={<JobListing />} />
+          <Route path="/edit-job/:jobId" element={<EditJob />} />
         </Routes>
       </BrowserRouter>
     </>
