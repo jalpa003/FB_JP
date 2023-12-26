@@ -70,7 +70,7 @@ module.exports.editJobByID = async (req, res) => {
         if (!updatedJobPost) {
             return res.status(404).json({ message: "Job not found" });
         }
-        res.status(200).json({message: "Job updated successfully"});
+        res.status(200).json({ message: "Job updated successfully" });
     }
     catch (error) {
         console.error(error);
@@ -105,6 +105,81 @@ module.exports.deleteJobByID = async (req, res) => {
         res.send({ statusCode: 500, message: error.message })
     }
 };
+
+//close a job
+module.exports.closeJob = async (req, res) => {
+    const { jobId } = req.params;
+    const { closeReason } = req.body;
+    try {
+        let job = await JobPost.findById(jobId);
+        if (!job) {
+            return res.status(404).json({ message: 'Job not found' });
+        }
+
+        if (job.user.toString() !== req.user.id) {
+            return res.status(403).json({ message: 'You are not authorized to close this job' });
+        }
+
+        let updateData = {
+            isClosed: true,
+            closeReason: closeReason || null,
+            closedAt: new Date(),
+        };
+
+        await JobPost.findByIdAndUpdate(jobId, updateData);
+        res.status(200).json({ success: true, message: 'Job closed successfully' });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+//show all jobs
+module.exports.getAllJobs = async (req, res) => {
+    try {
+        let limit = parseInt(req.query.limit) || 10;
+        let page = parseInt(req.query.page) || 1;
+        let skip = (page - 1) * limit;
+        // get total count of jobs
+        const totalCount = await JobPost.countDocuments();
+        // find the data for pagination
+        const data = await JobPost.find().sort('-createdAt').skip(skip).limit(limit);
+        // prepare meta data for pagination
+        const meta = {
+            totalCount,
+            totalPages: Math.ceil(totalCount / limit),
+            currentPage: page,
+            perPage: limit,
+        };
+        res.status(200).json({ data, meta });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("Server Error");
+    }
+};
+
+//fetch job details by job id
+module.exports.getJobDetails = async (req, res) => {
+    try {
+        const jobId = req.params.jobId;
+
+        // Check if jobId is provided in the request
+        if (!jobId || jobId === ":jobId") {
+            return res.status(400).json({ message: 'Job ID is required' });
+        }
+
+        // Fetch job details based on the jobId
+        const jobDetails = await JobPost.findById(jobId);
+
+        if (!jobDetails) {
+            return res.status(404).json({ message: 'Job not found' });
+        }
+        res.status(200).json(jobDetails);
+    } catch (error) {
+        console.error('Error fetching job details:', error);
+        res.status(500).send('Server Error');
+    }
+}
 
 function handleRegistrationError(error, res) {
     if (error.name === 'ValidationError') {

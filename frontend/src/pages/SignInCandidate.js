@@ -14,6 +14,7 @@ import withRoot from '../withRoot';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { jwtDecode as jwt_decode } from 'jwt-decode';
 import axios from 'axios';
 
 function CandidateSignIn() {
@@ -40,13 +41,32 @@ function CandidateSignIn() {
             // Make API request to candidate sign-in endpoint
             const response = await axios.post(`${process.env.REACT_APP_API_URL}/user_login`, values);
             if (response.status === 200) {
-                toast.success(response.data.message);
-                setSent(true);
+                // Store the token in localStorage
+                localStorage.setItem('token', response.data.token);
 
-                // Delay the redirect for 1.5 seconds
-                setTimeout(() => {
-                    navigate('/candidate-profile');
-                }, 1500);
+                // Decode the token to get user information
+                const decodedToken = jwt_decode(response.data.token);
+
+                // Check if the user's profile is completed
+                if (decodedToken.isProfileComplete) {
+                    // Profile is complete, redirect to /job-posting
+                    toast.success(response.data.message);
+                    setSent(true);
+
+                    // Delay the redirect
+                    setTimeout(() => {
+                        navigate('/all-jobs');
+                    }, 1500);
+                } else {
+                    // Profile is not complete, redirect to /candidate-profile
+                    toast.info('Complete your profile to access job posting.');
+                    setSent(true);
+
+                    // Delay the redirect
+                    setTimeout(() => {
+                        navigate('/candidate-profile');
+                    }, 1500);
+                }
             } else {
                 // Show error toast
                 toast.error(response.data.message);

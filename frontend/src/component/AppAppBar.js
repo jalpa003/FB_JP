@@ -19,6 +19,16 @@ function AppAppBar() {
     // Check if the user is logged in
     const isLoggedIn = !!localStorage.getItem('token');
 
+    let decodedToken;
+
+    if (isLoggedIn) {
+        // Get the token from local storage
+        const token = localStorage.getItem('token');
+
+        // Decode the token to get user information
+        decodedToken = jwt_decode(token);
+    }
+
     const handleLogout = () => {
         // Clear the token from local storage
         localStorage.removeItem('token');
@@ -41,6 +51,22 @@ function AppAppBar() {
             }
         }
     };
+
+    const handleJobListingClick = () => {
+        // Get the token from local storage
+        const token = localStorage.getItem('token');
+
+        // Decode the token to get user information
+        const decodedToken = jwt_decode(token);
+
+        // Redirect to the appropriate job listing page based on the user's role
+        if (decodedToken && decodedToken.role === 'candidate') {
+            navigate('/all-jobs');
+        } else {
+            navigate('/job-listing');
+        }
+    };
+
     return (
         <div>
             <AppBar position="fixed">
@@ -71,10 +97,10 @@ function AppAppBar() {
                                     color="inherit"
                                     variant="h6"
                                     underline="none"
-                                    href="/job-listing"
+                                    onClick={handleJobListingClick}
                                     sx={{ ...rightLink }}
                                 >
-                                    {'Job Listing'}
+                                    {decodedToken.role === 'candidate' ? 'Jobs' : 'Job Listing'}
                                 </Link>
                                 <Link
                                     color="inherit"

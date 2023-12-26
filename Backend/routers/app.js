@@ -16,7 +16,8 @@ router.get('/get_users', middleware.verifyToken, authRoutes.getAllUsers);
 router.get('/get_single_user/:userId', middleware.verifyToken, authRoutes.getUserDetails);
 
 //Candidate Profile Routes
-router.post('/canidate-profile', middleware.verifyToken, candidateRoutes.completeCandidateProfile);
+router.post('/complete_candidate_profile', middleware.verifyToken, candidateRoutes.completeCandidateProfile);
+router.get('/get_candidate_profile', middleware.verifyToken, candidateRoutes.getCandidateById);
 
 //Employer Profile Routes
 router.post('/employer-profile', middleware.verifyToken, employerRoutes.createEmployerProfile);
@@ -26,6 +27,9 @@ router.get('/all_jobs/empId', middleware.verifyToken, jobsRoutes.getAllJobsByEmp
 router.get('/get_single_job/:jobId', middleware.verifyToken, jobsRoutes.getJobById)
 router.put('/update_job/:jobId', middleware.verifyToken, jobsRoutes.editJobByID)
 router.delete('/delete_job/:jobId', middleware.verifyToken, jobsRoutes.deleteJobByID)
+router.post('/close_job/:jobId', middleware.verifyToken, jobsRoutes.closeJob);
+router.get('/all_jobs', middleware.verifyToken, jobsRoutes.getAllJobs);
+router.get('/job_details/:jobId', middleware.verifyToken, jobsRoutes.getJobDetails);
 
 router.post('/create_emp_profile', middleware.verifyToken, employerRoutes.createEmployerProfile)
 router.get('/get_all_employees', middleware.verifyToken, employerRoutes.getAllEmployers)

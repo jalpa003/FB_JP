@@ -3,11 +3,20 @@ const mongoose = require('mongoose');
 const candidateProfile = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Users',
+        ref: 'User',
         required: true,
     },
     headline: {
         type: String,
+        trim: true,
+    },
+    desiredJobTitle: {
+        type: String,
+        trim: true,
+    },
+    desiredJobType: {
+        type: String,
+        enum: ['FT', 'PT', 'Temp', 'Apprentice'],
         trim: true,
     },
     phone: {
@@ -31,10 +40,43 @@ const candidateProfile = new mongoose.Schema({
         min: [0, 'Distance should be a non-negative value'],
         default: 0
     },
-    jobTraining: [String],
+    jobTraining: {
+        smartServe: {
+            type: Boolean,
+            default: false
+        },
+        culinaryTraining: {
+            type: Boolean,
+            default: false
+        },
+        redSeal: {
+            type: Boolean,
+            default: false
+        },
+        workplaceSafety: {
+            type: Boolean,
+            default: false
+        },
+        customerService: {
+            type: Boolean,
+            default: false
+        },
+        barTending: {
+            type: Boolean,
+            default: false
+        },
+        barista: {
+            type: Boolean,
+            default: false
+        },
+        fineDining: {
+            type: Boolean,
+            default: false
+        }
+    },
     experienceLevel: {
         type: String,
-        enum: ['Entry', 'Mid', 'Senior', 'Lead', 'Principal'],
+        enum: ['<1', '1-3', '3-5', '5-7', '7-10', '10+'],
     },
     languageSkills: [String],
 }, { timestamps: true });

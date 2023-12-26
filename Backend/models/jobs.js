@@ -29,7 +29,7 @@ const jobSchema = new mongoose.Schema({
             type: Boolean,
             default: false
         },
-        mixologyTraining:{
+        mixologyTraining: {
             type: Boolean,
             default: false
         }
@@ -172,6 +172,24 @@ const jobSchema = new mongoose.Schema({
             allowCalls: Boolean,
             phoneNumber: String,
         },
+    },
+    closeReason: {
+        type: String,
+        enum: [
+            'filled_through_tastetalent',
+            'filled_internally',
+            'filled_from_another_source',
+            'no_longer_needed'
+        ],
+        default: null, // Default to null until the job is closed
+    },
+    closedAt: {
+        type: Date,
+        default: null, // Default to null until the job is closed
+    },
+    isClosed: {
+        type: Boolean,
+        default: false,
     },
     status: {
         type: String,

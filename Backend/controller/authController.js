@@ -1,7 +1,5 @@
 const User = require('../models/users');
-const Candidate = require('../models/candidates');
 const jwt = require("jsonwebtoken");
-const upload = require('../middleware/upload');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 
@@ -210,6 +208,33 @@ module.exports.forgotPassword = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+
+//reset password
+exports.resetPassword = async (req, res) => {
+    const { resetToken, newPassword } = req.body;
+    try {
+        // Find the user by the reset token
+        const user = await User.findOne({ resetToken: resetToken });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Password reset token is invalid or has expired' });
+        }
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update the user's password and reset token
+        await User.findByIdAndUpdate(user.id, {
+            password: hashedPassword,
+            resetToken: null,
+        });
+
+        res.status(200).json({ message: 'Password reset successful' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
 
 function handleRegistrationError(error, res) {
     if (error.name === 'ValidationError') {
