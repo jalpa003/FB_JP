@@ -145,8 +145,6 @@ const JobListing = () => {
                             <Grid item xs={12} md={6}>
                                 <Typography variant="h6">Preferred Start Date</Typography>
                                 <Typography>{new Date(selectedJob?.preferredStartDate).toLocaleDateString()}</Typography>
-                                <Typography variant="h6">Is Closed</Typography>
-                                <DialogContentText>{selectedJob?.isClosed ? 'Yes' : 'No'}</DialogContentText>
 
                                 {/* Display true values from jobRequirements */}
                                 <Typography variant="h6" mt={2}>Job Requirements:</Typography>
