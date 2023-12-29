@@ -17,6 +17,36 @@ import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+const jobTitles = [
+    'Chef',
+    'Sous Chef',
+    'Line Cook',
+    'Pastry Chef',
+    'Baker',
+    'Kitchen Manager',
+    'Food and Beverage Manager',
+    'Bartender',
+    'Server',
+    'Host/Hostess',
+    'Waiter/Waitress',
+    'Catering Manager',
+    'Event Planner',
+    'Sommelier',
+    'Mixologist',
+    'Bar Manager',
+    'Barista',
+    'Dishwasher',
+    'Busser',
+    'Food Runner',
+    'Prep Cook',
+    'Food Expeditor',
+    'Culinary Instructor',
+    'Restaurant Manager',
+    'General Manager',
+    'Shift Supervisor',
+    'Restaurant Owner',
+];
+
 function CandidateProfile() {
     const navigate = useNavigate();
     const [sent, setSent] = useState(false);
@@ -193,7 +223,16 @@ function CandidateProfile() {
                                         fullWidth
                                         label="Desired Job Title"
                                         name="desiredJobTitle"
-                                    />
+                                        select
+                                        SelectProps={{ native: true }}
+                                    >
+                                        <option value="">Select</option>
+                                        {jobTitles.map((title) => (
+                                            <option key={title} value={title}>
+                                                {title}
+                                            </option>
+                                        ))}
+                                    </Field>
                                     <Field
                                         component={RFTextField}
                                         disabled={submitting || sent}
