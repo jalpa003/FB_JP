@@ -7,7 +7,7 @@ const employerRoutes = require('../controller/employer');
 const jobsRoutes = require('../controller/jobs');
 
 //authentication Routes
-router.post('/candidate_registration', uploadMiddleware, authRoutes.candidateRegistration);
+router.post('/candidate_registration', authRoutes.candidateRegistration);
 router.post('/employer_registration', authRoutes.employerRegistartion);
 router.post('/user_login', authRoutes.logIn);
 
@@ -16,8 +16,21 @@ router.get('/get_users', middleware.verifyToken, authRoutes.getAllUsers);
 router.get('/get_single_user/:userId', middleware.verifyToken, authRoutes.getUserDetails);
 
 //Candidate Profile Routes
-router.post('/complete_candidate_profile', middleware.verifyToken, candidateRoutes.completeCandidateProfile);
+router.post(
+  '/complete_candidate_profile',
+  middleware.verifyToken,
+  uploadMiddleware([
+    { name: 'image', maxCount: 1 },
+    { name: 'resume', maxCount: 1 }
+  ]),
+  candidateRoutes.completeCandidateProfile
+);
+router.post('/upload_avatar', middleware.verifyToken, uploadMiddleware([{ name: 'image', maxCount: 1 },]), candidateRoutes.uploadAvatar);
+router.delete('/delete_avatar', middleware.verifyToken, candidateRoutes.deleteAvatar);
+router.post('/upload_resume', middleware.verifyToken, uploadMiddleware([{ name: 'resume', maxCount: 1 },]), candidateRoutes.uploadResume);
+router.delete('/delete_resume', middleware.verifyToken, candidateRoutes.deleteResume);
 router.get('/get_candidate_profile', middleware.verifyToken, candidateRoutes.getCandidateById);
+router.get('/job-search', middleware.verifyToken, jobsRoutes.searchJobs);
 
 //Employer Profile Routes
 router.post('/employer-profile', middleware.verifyToken, employerRoutes.createEmployerProfile);

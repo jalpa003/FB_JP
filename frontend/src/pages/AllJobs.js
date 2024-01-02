@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
@@ -16,6 +17,8 @@ import Grid from '@mui/material/Grid';
 import Divider from '@mui/material/Divider';
 import AppAppBar from '../component/AppAppBar';
 import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const JobListing = () => {
     const [jobs, setJobs] = useState([]);
@@ -23,24 +26,31 @@ const JobListing = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedJob, setSelectedJob] = useState(null);
     const [filter, setFilter] = useState('');
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const jobTitleParam = queryParams.get('jobTitle') || '';
+    const jobLocationParam = queryParams.get('jobLocation') || '';
 
     useEffect(() => {
-        // Fetch the list of jobs based on pagination and filters
+        // Fetch the list of jobs based on pagination, filters, jobTitle, and jobLocation
         const fetchJobs = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/all_jobs?limit=10&page=${currentPage}&filter=${filter}`, {
+                const apiUrl = `${process.env.REACT_APP_API_URL}/all_jobs?limit=10&page=${currentPage}&filter=${filter}&jobTitle=${jobTitleParam}&jobLocation=${jobLocationParam}`;
+                const response = await axios.get(apiUrl, {
                     headers: { 'Authorization': `${token}` },
                 });
                 setJobs(response.data.data || []);
                 setTotalPages(response.data.meta.totalPages || 1);
             } catch (error) {
-                console.error('Error fetching jobs:', error);
+                // Display error toast message
+                const errorData = error.response.data;
+                console.error('Error fetching jobs:', errorData);
             }
         };
 
         fetchJobs();
-    }, [currentPage, filter]);
+    }, [currentPage, filter, jobTitleParam, jobLocationParam, location.search]);
 
     const handlePageChange = (event, value) => {
         setCurrentPage(value);
@@ -121,6 +131,11 @@ const JobListing = () => {
                             sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
                         />
                     )}
+                    {jobs.length === 0 && (
+                        <Typography variant="body1" sx={{ mt: 2, textAlign: 'center' }}>
+                            No jobs found with the given search criteria.
+                        </Typography>
+                    )}
                 </Box>
                 {/* Job details Dialog */}
                 <Dialog open={!!selectedJob} onClose={handleCloseDialog} maxWidth="md">
@@ -177,6 +192,7 @@ const JobListing = () => {
                     </DialogActions>
                 </Dialog>
             </Container>
+            <ToastContainer />
         </React.Fragment>
     );
 };

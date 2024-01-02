@@ -1,49 +1,29 @@
 const Candidate = require('../models/candidates');
 const User = require('../models/users');
-const multer = require('multer');
 const path = require('path');
-const { v4: uuidv4 } = require('uuid');
-
-// Set up storage for profile pictures
-const profilePictureStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/images');
-    },
-    filename: (req, file, cb) => {
-        const fileName = req.body.firstName + '_' + uuidv4() + path.extname(file.originalname);
-        cb(null, fileName);
-    },
-});
-
-// Set up storage for resumes
-const resumeStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/resumes');
-    },
-    filename: (req, file, cb) => {
-        const fileName = req.body.firstName + '_' + uuidv4() + path.extname(file.originalname);
-        cb(null, fileName);
-    },
-});
-
-const uploadProfilePicture = multer({
-    storage: profilePictureStorage,
-}).single('profilePicture');
-
-const uploadResume = multer({
-    storage: resumeStorage,
-}).single('resume');
+const fs = require('fs');
 
 module.exports.completeCandidateProfile = async (req, res) => {
-    const { headline, phone, showPhoneToEmployers, address, willingToRelocate, desiredJobTitle, desiredJobType, resume, profilePicture, distance, jobTraining, experienceLevel, languageSkills } = req.body;
+    const { firstName, lastName, password, headline, phone, showPhoneToEmployers, address, willingToRelocate, desiredJobTitle, desiredJobType, distance, jobTraining, experienceLevel, languageSkills } = req.body;
     const userId = req.user.id;
-
     try {
         // Check if the user exists
-        const user = await User.findById(userId);
+        let user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+
+        // Update the user details
+        user.firstName = firstName;
+        user.lastName = lastName;
+
+        // Check if a new password is provided
+        if (password) {
+            user.password = password; // You may want to hash the password before saving
+        }
+
+        // Save the updated user details
+        user = await user.save();
 
         // Check if the candidate profile already exists
         let candidateProfile = await Candidate.findOne({ user: userId });
@@ -55,10 +35,8 @@ module.exports.completeCandidateProfile = async (req, res) => {
             candidateProfile.showPhoneToEmployers = showPhoneToEmployers;
             candidateProfile.address = address;
             candidateProfile.willingToRelocate = willingToRelocate;
-            candidateProfile.resume = resume;
             candidateProfile.desiredJobType = desiredJobType;
             candidateProfile.desiredJobTitle = desiredJobTitle;
-            candidateProfile.profilePicture = profilePicture;
             candidateProfile.distance = distance;
             candidateProfile.jobTraining = jobTraining;
             candidateProfile.experienceLevel = experienceLevel;
@@ -76,10 +54,8 @@ module.exports.completeCandidateProfile = async (req, res) => {
                 showPhoneToEmployers,
                 address,
                 willingToRelocate,
-                resume,
                 desiredJobTitle,
                 desiredJobType,
-                profilePicture,
                 distance,
                 jobTraining,
                 experienceLevel,
@@ -88,6 +64,20 @@ module.exports.completeCandidateProfile = async (req, res) => {
 
             // Save the new candidate profile
             candidateProfile = await candidateProfile.save();
+        }
+
+        // Handle resume upload with async/await
+        const resumeUpload = req.files?.["resume"]?.[0]?.filename || "";
+        if (resumeUpload) {
+            candidateProfile.resume = resumeUpload;
+            await candidateProfile.save();
+        }
+
+        // Handle profile picture upload with async/await
+        const profileUpload = req.files?.["image"]?.[0]?.filename || "";
+        if (profileUpload) {
+            candidateProfile.profilePicture = profileUpload;
+            await candidateProfile.save();
         }
 
         // Update the user's profile completion status
@@ -140,6 +130,152 @@ module.exports.getCandidateById = async (req, res) => {
     }
 }
 
+module.exports.uploadAvatar = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        // Check if the user exists
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if the candidate profile already exists
+        let candidateProfile = await Candidate.findOne({ user: userId });
+
+        // Handle profile picture upload with async/await
+        const avatarUpload = req.files?.["image"]?.[0]?.filename || "";
+        if (avatarUpload) {
+            // If the candidate profile doesn't exist, show error message
+            if (!candidateProfile) {
+                throw new Error("No candidate profile found");
+            }
+
+            candidateProfile.profilePicture = avatarUpload;
+            await candidateProfile.save();
+        }
+
+        res.status(200).json({ message: 'Profile Picture uploaded successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error uploading Profile Picture.' });
+    }
+};
+
+module.exports.deleteAvatar = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        // Check if the user exists
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if the candidate profile exists
+        const candidateProfile = await Candidate.findOne({ user: userId });
+        if (!candidateProfile) {
+            return res.status(404).json({ message: 'Candidate profile not found' });
+        }
+
+        // Get the avatar file name
+        const avatarFileName = candidateProfile.profilePicture;
+
+        // Remove the avatar file
+        if (avatarFileName) {
+            const avatarPath = path.join(__dirname, `../uploads/images/${avatarFileName}`);
+            if (fs.existsSync(avatarPath)) {
+                fs.unlinkSync(avatarPath);
+            }
+        }
+
+        // Update the candidate profile to remove the avatar reference
+        candidateProfile.profilePicture = null;
+        await candidateProfile.save();
+
+        res.status(200).json({ message: 'Profile Picture deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error deleting the avatar' });
+    }
+};
+
+module.exports.deleteResume = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        // Check if the user exists
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if the candidate profile exists
+        const candidateProfile = await Candidate.findOne({ user: userId });
+        if (!candidateProfile) {
+            return res.status(404).json({ message: 'Candidate profile not found' });
+        }
+
+        // Get the resume filename
+        const resumeFileName = candidateProfile.resume;
+
+        // Delete the resume file from the uploads directory
+        if (resumeFileName) {
+            const resumePath = path.join(__dirname, '../uploads/resumes', resumeFileName);
+            await fs.promises.unlink(resumePath);
+        }
+
+        // Remove the resume reference from the candidate profile
+        candidateProfile.resume = null;
+        await candidateProfile.save();
+
+        res.status(200).json({ message: 'Resume deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error deleting the resume' });
+    }
+};
+
+//upload resume
+module.exports.uploadResume = async (req, res) => {
+    try {
+        // Check if the user is authenticated and get the user ID
+        const userId = req.user.id;
+
+        // Check if the user exists
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if the candidate profile exists
+        const candidateProfile = await Candidate.findOne({ user: userId });
+        if (!candidateProfile) {
+            return res.status(404).json({ message: 'Candidate profile not found' });
+        }
+
+        // Get the current resume filename, if any
+        const currentResume = candidateProfile.resume;
+
+        // If there's a current resume, delete it from the uploads directory
+        if (currentResume) {
+            const currentResumePath = path.join(__dirname, '../uploads/resumes', currentResume);
+            fs.unlinkSync(currentResumePath);
+        }
+
+        // Update the candidate profile with the new resume filename
+        const newResumeFilename = req.files?.["resume"]?.[0]?.filename || "";
+        if (newResumeFilename) {
+            candidateProfile.resume = newResumeFilename;
+            await candidateProfile.save();
+        }
+
+        res.status(200).json({ message: 'Resume uploaded successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error uploading the resume' });
+    }
+}
 
 function handleRegistrationError(error, res) {
     if (error.name === 'ValidationError') {

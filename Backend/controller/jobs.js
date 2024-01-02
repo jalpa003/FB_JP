@@ -140,10 +140,31 @@ module.exports.getAllJobs = async (req, res) => {
         let limit = parseInt(req.query.limit) || 10;
         let page = parseInt(req.query.page) || 1;
         let skip = (page - 1) * limit;
-        // get total count of jobs
-        const totalCount = await JobPost.countDocuments();
-        // find the data for pagination
-        const data = await JobPost.find().sort('-createdAt').skip(skip).limit(limit);
+
+        // Define search parameters
+        const searchParams = {};
+
+        // Check if there is a job title search query
+        if (req.query.jobTitle) {
+            searchParams.jobTitle = { $regex: new RegExp(req.query.jobTitle, 'i') };
+        }
+
+        // Check if there is a location search query
+        if (req.query.jobLocation) {
+            searchParams.jobLocation = { $regex: new RegExp(req.query.jobLocation, 'i') };
+        }
+
+        // get total count of jobs with search parameters
+        const totalCount = await JobPost.countDocuments(searchParams);
+
+        // find the data for pagination with search parameters
+        const data = await JobPost.find(searchParams).sort('-createdAt').skip(skip).limit(limit);
+
+        if (data.length === 0) {
+            // Return an error response when no matching jobs are found
+            return res.status(404).json({ message: "No jobs found with the given search criteria." });
+        }
+
         // prepare meta data for pagination
         const meta = {
             totalCount,
@@ -181,6 +202,47 @@ module.exports.getJobDetails = async (req, res) => {
     }
 }
 
+//search jobs by job title or location or both
+module.exports.searchJobs = async (req, res) => {
+    try {
+        const { jobTitle, jobLocation, page = 1, limit = 10, sortBy, sortOrder } = req.query;
+
+        // Construct the search criteria based on provided parameters
+        const searchCriteria = {};
+        if (jobTitle) {
+            searchCriteria.jobTitle = { $regex: new RegExp(jobTitle, 'i') }; // Case-insensitive search
+        }
+        if (jobLocation) {
+            searchCriteria.jobLocation = { $regex: new RegExp(jobLocation, 'i') };
+        }
+
+        // Construct the options for pagination and sorting
+        const options = {
+            skip: (page - 1) * limit,
+            limit: parseInt(limit),
+            sort: sortBy ? { [sortBy]: sortOrder === 'asc' ? 1 : -1 } : undefined,
+        };
+
+        // Perform the search in your database based on jobTitle and location with pagination and sorting
+        const searchResults = await JobPost.find(searchCriteria, null, options);
+
+        // Count the total number of matching documents for pagination info
+        const totalResults = await JobPost.countDocuments(searchCriteria);
+
+        res.json({
+            results: searchResults,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                totalResults,
+                totalPages: Math.ceil(totalResults / limit),
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
 function handleRegistrationError(error, res) {
     if (error.name === 'ValidationError') {
         // Extract validation error messages

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '../component/Button';
 import Typography from './Typography';
@@ -8,10 +8,22 @@ const backgroundImage =
     'https://images.unsplash.com/photo-1533777857889-4be7c70b33f7?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
 
 export default function ProductHero() {
-    // const handleSearch = (event) => {
-    //     // Implement your search logic here
-    //     console.log('Search Query:', event.target.value);
-    // };
+    const [jobTitle, setJobTitle] = useState('');
+    const [jobLocation, setJobLocation] = useState('');
+
+    const handleSearch = () => {
+        // Build the search query
+        const queryParams = {};
+        if (jobTitle) {
+            queryParams.jobTitle = jobTitle;
+        }
+        if (jobLocation) {
+            queryParams.jobLocation = jobLocation;
+        }
+
+        // Redirect to the job listing page with the search query parameters
+        window.location.href = `/all-jobs?${new URLSearchParams(queryParams).toString()}`;
+    };
 
     return (
         <ProductHeroLayout
@@ -63,6 +75,7 @@ export default function ProductHero() {
                     id="outlined-basic"
                     label="Job Title"
                     variant="filled"
+                    onChange={(e) => setJobTitle(e.target.value)}
                     sx={{
                         flex: '1',
                         width: '100%',
@@ -90,6 +103,7 @@ export default function ProductHero() {
                     id="outlined-basic"
                     label="Location"
                     variant="filled"
+                    onChange={(e) => setJobLocation(e.target.value)}
                     sx={{
                         flex: '1',
                         width: '100%',
@@ -115,6 +129,7 @@ export default function ProductHero() {
                 <Button
                     variant="contained"
                     color="primary"
+                    onClick={handleSearch}
                     sx={{
                         borderRadius: '5px',
                         backgroundColor: '#ff3366',
