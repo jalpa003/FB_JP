@@ -84,6 +84,18 @@ function CandidateProfile() {
     const validate = (values) => {
         // Implement your validation logic here if needed
         const errors = {};
+        if (!values.firstName) {
+            errors.firstName = 'First Name is required';
+        }
+        if (!values.lastName) {
+            errors.lastName = 'Last Name is required';
+        }
+        if (!values.email) {
+            errors.email = 'Email is required';
+        }
+        if (!values.phone) {
+            errors.phone = 'Phone Number is required';
+        }
         return errors;
     };
 
@@ -117,6 +129,11 @@ function CandidateProfile() {
         setAnchorEl(null);
     };
     const handleUploadNewImage = async (event) => {
+        // Check if required fields are completed
+        if (!existingDetails.firstName || !existingDetails.lastName || !existingDetails.phone || !existingDetails.email) {
+            toast.error('Please complete the required fields before uploading the profile picture.');
+            return;
+        }
         const fileInput = event.target;
         const file = fileInput.files[0];
         console.log(file);
@@ -142,8 +159,9 @@ function CandidateProfile() {
                 // Refresh the page to reflect the updated avatar
                 window.location.reload();
             } catch (error) {
-                console.error(error);
-                toast.error('An error occurred while uploading the Profile Picture');
+                const errorData = error.response.data;
+                console.error(errorData);
+                toast.error(errorData.message);
             }
         }
     };
@@ -176,6 +194,12 @@ function CandidateProfile() {
         }
     };
     const handleFileInputChange = async (event) => {
+        // Check if required fields are completed
+        if (!existingDetails.firstName || !existingDetails.lastName || !existingDetails.phone || !existingDetails.email) {
+            toast.error('Please complete the required fields before uploading the resume.');
+            return;
+        }
+
         const fileInput = event.target;
         const file = fileInput.files[0];
 
