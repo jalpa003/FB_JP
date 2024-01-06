@@ -4,7 +4,6 @@ import Box from '@mui/material/Box';
 import Typography from '../component/Typography';
 import AppAppBar from '../component/AppAppBar';
 import AppForm from '../component/AppForm';
-import { email, required } from '../form/validation';
 import RFTextField from '../form/RFTextField';
 import FormButton from '../form/FormButton';
 import FormFeedback from '../form/FormFeedback';
@@ -43,15 +42,7 @@ function ResetPassword() {
     };
 
     const validate = (values) => {
-        const errors = required(['email'], values);
-
-        if (!errors.email) {
-            const emailError = email(values.email);
-            if (emailError) {
-                errors.email = emailError;
-            }
-        }
-
+        const errors = {};
         if (!values.newPassword) {
             errors.newPassword = 'New Password is required';
         }
