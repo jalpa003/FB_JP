@@ -10,6 +10,7 @@ import SignIn from './pages/SignIn';
 import SignInCandidate from './pages/SignInCandidate';
 import SignInEmployer from './pages/SignInEmployer';
 import ForgetPassword from './pages/ForegtPassword';
+import ResetPassword from './pages/ResetPassword';
 import EmployerProfile from './pages/EmployerProfile';
 import Profile from './pages/Profile';
 import JobPosting from './pages/JobPosting';
@@ -31,6 +32,7 @@ const App = () => {
           <Route path="/sign-in/candidate" element={<SignInCandidate />} />
           <Route path="/sign-in/employer" element={<SignInEmployer />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/employer-profile" element={<EmployerProfile />} />
           <Route path="/candidate-profile" element={<Profile />} />
           <Route path="/job-posting" element={<JobPosting />} />

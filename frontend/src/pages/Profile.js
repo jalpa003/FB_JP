@@ -125,9 +125,11 @@ function CandidateProfile() {
     const handleEditAvatar = (event) => {
         setAnchorEl(event.currentTarget);
     };
+
     const handleCloseAvatarMenu = () => {
         setAnchorEl(null);
     };
+
     const handleUploadNewImage = async (event) => {
         // Check if required fields are completed
         if (!existingDetails.firstName || !existingDetails.lastName || !existingDetails.phone || !existingDetails.email) {
@@ -170,6 +172,10 @@ function CandidateProfile() {
     const id = openAvatarMenu ? 'avatar-menu' : undefined;
 
     const handleDeleteAvatar = async () => {
+        if (!existingDetails.profilePicture) {
+            toast.info('You have not uploaded any profile picture to delete.');
+            return;
+        }
         try {
             // Implement the logic to delete the avatar on the server
             const token = localStorage.getItem('token');
@@ -193,6 +199,7 @@ function CandidateProfile() {
             fileInputRef.current.click();
         }
     };
+
     const handleFileInputChange = async (event) => {
         // Check if required fields are completed
         if (!existingDetails.firstName || !existingDetails.lastName || !existingDetails.phone || !existingDetails.email) {
@@ -230,8 +237,11 @@ function CandidateProfile() {
         }
     };
 
-
     const handleDeleteResume = async () => {
+        if (!existingDetails.resume) {
+            toast.info('You have not uploaded any resume to delete.');
+            return;
+        }
         try {
             // Implement the logic to delete the resume on the server
             const token = localStorage.getItem('token');
@@ -263,7 +273,11 @@ function CandidateProfile() {
     };
 
     const handleResumeIconClick = () => {
-        window.open(resumeUrl, '_blank');
+        if (!existingDetails.resume) {
+            toast.info('Please upload your resume first.');
+        } else {
+            window.open(resumeUrl, '_blank');
+        }
     };
 
     const getResumeIcon = () => {

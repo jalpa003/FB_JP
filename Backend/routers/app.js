@@ -10,6 +10,8 @@ const jobsRoutes = require('../controller/jobs');
 router.post('/candidate_registration', authRoutes.candidateRegistration);
 router.post('/employer_registration', authRoutes.employerRegistartion);
 router.post('/user_login', authRoutes.logIn);
+router.post('/forgot_password', authRoutes.forgotPassword);
+router.post('/reset_password', authRoutes.resetPassword);
 
 //User Routes
 router.get('/get_users', middleware.verifyToken, authRoutes.getAllUsers);

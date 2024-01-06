@@ -42,6 +42,12 @@ const userSchema = new Schema({
     isVerified: {
         type: Boolean,
         default: false
+    },
+    resetPasswordToken: {
+        type: String
+    },
+    resetPasswordExpires: {
+        type: Date,
     }
 }, { timestamps: true });
 
@@ -56,8 +62,6 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.isCorrectPassword = async function (password) {
     return await bcrypt.compare(password, this.password);
 }
-
-
 
 const User = mongoose.model('User', userSchema);
 
