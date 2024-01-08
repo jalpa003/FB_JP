@@ -44,7 +44,7 @@ router.get('/get_single_job/:jobId', middleware.verifyToken, jobsRoutes.getJobBy
 router.put('/update_job/:jobId', middleware.verifyToken, jobsRoutes.editJobByID)
 router.delete('/delete_job/:jobId', middleware.verifyToken, jobsRoutes.deleteJobByID)
 router.post('/close_job/:jobId', middleware.verifyToken, jobsRoutes.closeJob);
-router.get('/all_jobs', middleware.verifyToken, jobsRoutes.getAllJobs);
+router.get('/all_jobs', jobsRoutes.getAllJobs);
 router.get('/job_details/:jobId', middleware.verifyToken, jobsRoutes.getJobDetails);
 
 router.post('/create_emp_profile', middleware.verifyToken, employerRoutes.createEmployerProfile);
