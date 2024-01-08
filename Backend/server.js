@@ -11,9 +11,9 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 1000000 }));
 
 //connect to mongodb
-
 mongoose.connect(process.env.MONGO_URI, {})
     .then(() => console.log('Connected to MongoDB'))
+    
     .catch(err => console.log(err));
 
 app.use(cors());

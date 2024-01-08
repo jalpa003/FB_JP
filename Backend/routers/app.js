@@ -5,6 +5,7 @@ const authRoutes = require('../controller/authController');
 const candidateRoutes = require('../controller/candidate');
 const employerRoutes = require('../controller/employer');
 const jobsRoutes = require('../controller/jobs');
+const pricingRoutes = require('../controller/pricing');
 
 //authentication Routes
 router.post('/candidate_registration', authRoutes.candidateRegistration);
@@ -46,10 +47,12 @@ router.post('/close_job/:jobId', middleware.verifyToken, jobsRoutes.closeJob);
 router.get('/all_jobs', middleware.verifyToken, jobsRoutes.getAllJobs);
 router.get('/job_details/:jobId', middleware.verifyToken, jobsRoutes.getJobDetails);
 
-router.post('/create_emp_profile', middleware.verifyToken, employerRoutes.createEmployerProfile)
-router.get('/get_all_employees', middleware.verifyToken, employerRoutes.getAllEmployers)
-router.get('/get_employee/:employeeId', middleware.verifyToken, employerRoutes.getSingleEmployeeById)
-router.put('/update_employee/:employeeId', middleware.verifyToken, employerRoutes.updateEmployee)
-router.delete('/delete_employee/:employeeId', middleware.verifyToken, employerRoutes.deleteEmployee)
+router.post('/create_emp_profile', middleware.verifyToken, employerRoutes.createEmployerProfile);
+router.get('/get_all_employees', middleware.verifyToken, employerRoutes.getAllEmployers);
+router.get('/get_employee/:employeeId', middleware.verifyToken, employerRoutes.getSingleEmployeeById);
+router.put('/update_employee/:employeeId', middleware.verifyToken, employerRoutes.updateEmployee);
+router.delete('/delete_employee/:employeeId', middleware.verifyToken, employerRoutes.deleteEmployee);
+
+router.get('/pricing-plans', pricingRoutes.getPricingPlans);
 
 module.exports = router;
