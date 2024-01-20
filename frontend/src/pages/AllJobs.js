@@ -106,17 +106,11 @@ const JobListing = () => {
 
                 const candidateProfile = responseProfile.data;
 
-                // Check if the candidate has uploaded a resume
-                if (candidateProfile.candidateWithUserDetails.resume) {
-                    // Resume is uploaded, open the dialog to display resume and upload options
-                    setResumeDialogOpen(true);
-                    setResumeDetails({ resume: candidateProfile.candidateWithUserDetails.resume });
-                    setJobIdToApply(jobId);
-                }
-                else {
-                    // Resume is not uploaded, show message
-                    toast.error('Please upload your resume to apply for this job.');
-                }
+                // Open the dialog to display resume and upload options
+                setResumeDialogOpen(true);
+                setResumeDetails({ resume: candidateProfile.candidateWithUserDetails.resume });
+                setJobIdToApply(jobId);
+
             } catch (error) {
                 const errorData = error.response.data;
                 toast.error(errorData.message);
@@ -217,8 +211,6 @@ const JobListing = () => {
             </Dialog>
         );
     };
-
-
 
     const handleCloseDialog = () => {
         setSelectedJob(null);

@@ -2,6 +2,8 @@ const JobApplication = require('../models/jobApplication');
 const Candidate = require('../models/candidates');
 const User = require('../models/users');
 const Job = require('../models/jobs');
+const path = require('path');
+const fs = require('fs');
 
 module.exports.createJobApplication = async (req, res) => {
     const { jobId } = req.body;
@@ -36,16 +38,26 @@ module.exports.createJobApplication = async (req, res) => {
         }
 
         // Handle resume upload with async/await
-        const resumeUpload = req.files?.["resume"]?.[0]?.filename || "";
-        if (!resumeUpload) {
+        const newResumeFilename = req.files?.["resume"]?.[0]?.filename || "";
+        if (!newResumeFilename) {
             return res.status(400).json({ message: 'Resume is required for job application' });
         }
+
+        // If there's an existing resume, delete it from the uploads directory
+        if (candidateProfile.resume) {
+            const currentResumePath = path.join(__dirname, '../uploads/resumes', candidateProfile.resume);
+            await fs.unlinkSync(currentResumePath);
+        }
+
+        // Update the candidate profile with the new resume filename
+        candidateProfile.resume = newResumeFilename;
+        await candidateProfile.save();
 
         // Create a new job application
         const jobApplication = new JobApplication({
             applicant: applicantId,
             job: jobId,
-            resume: resumeUpload,
+            resume: newResumeFilename,
         });
 
         // Save the job application to the database
