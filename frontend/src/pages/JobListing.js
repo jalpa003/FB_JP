@@ -145,7 +145,10 @@ const JobListing = () => {
                                     {job.jobTitle}
                                 </Typography>
                                 <Typography>Description: {job.jobDescription}</Typography>
-                                <Typography>Location: {job.jobLocation}</Typography>
+                                <Typography>
+                                    Location: {job.jobLocation ? `${job.jobLocation.streetAddress}, ${job.jobLocation.city}, ${job.jobLocation.province} ${job.jobLocation.postalCode}` : 'N/A'}
+                                </Typography>
+                                {/* <Typography>Location: {job.jobLocation}</Typography> */}
                                 <Typography>Posted on: {new Date(job.createdAt).toLocaleDateString()}</Typography>
                                 <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
                                     <IconButton color="primary" aria-label="edit job" onClick={() => handleEditJob(job._id)}>

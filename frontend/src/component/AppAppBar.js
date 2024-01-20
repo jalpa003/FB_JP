@@ -100,7 +100,7 @@ function AppAppBar() {
                                     onClick={handleJobListingClick}
                                     sx={{ ...rightLink }}
                                 >
-                                    {decodedToken.role === 'candidate' ? 'Jobs' : 'Job Listing'}
+                                    {decodedToken.role === 'candidate' ? 'Find Jobs' : 'Job Listing'}
                                 </Link>
                                 <Link
                                     color="inherit"

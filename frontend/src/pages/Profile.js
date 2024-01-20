@@ -479,8 +479,35 @@ function CandidateProfile() {
                                         component={RFTextField}
                                         disabled={submitting || sent}
                                         fullWidth
-                                        label="Address"
-                                        name="address"
+                                        label="Street Address"
+                                        name="address.streetAddress"
+                                    />
+                                    <Grid container spacing={2}>
+                                        <Grid item xs={12} sm={6}>
+                                            <Field
+                                                component={RFTextField}
+                                                disabled={submitting || sent}
+                                                fullWidth
+                                                label="City"
+                                                name="address.city"
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={6}>
+                                            <Field
+                                                component={RFTextField}
+                                                disabled={submitting || sent}
+                                                fullWidth
+                                                label="Province"
+                                                name="address.province"
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                    <Field
+                                        component={RFTextField}
+                                        disabled={submitting || sent}
+                                        fullWidth
+                                        label="Postal Code"
+                                        name="address.postalCode"
                                     />
                                     {/* <Field
                                         component={RFTextField}

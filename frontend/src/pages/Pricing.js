@@ -33,10 +33,13 @@ const PricingPage = () => {
       <Box
         sx={{
           display: 'flex',
-          backgroundImage: 'url(/images/productCurvyLines.png)',
+          backgroundImage: 'url("https://t.ly/BnYyp")',
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat',
           alignItems: 'center',
           justifyContent: 'center',
-          minHeight: '70vh',
+          height: '100vh',
+          width: '100%',
           backgroundColor: '#f5f5f5',
         }}
       >
@@ -65,7 +68,7 @@ const PricingPage = () => {
                     </ul>
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                       <Button variant="contained" color="primary">
-                        ADD TO CART
+                        Buy Now
                       </Button>
                     </Box>
                   </CardContent>

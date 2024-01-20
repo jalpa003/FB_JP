@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Pagination from '@mui/material/Pagination';
 import Button from '@mui/material/Button';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -16,6 +14,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import Grid from '@mui/material/Grid';
 import Divider from '@mui/material/Divider';
 import AppAppBar from '../component/AppAppBar';
+import FilterBar from '../component/FilterBar';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -25,39 +24,58 @@ const JobListing = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedJob, setSelectedJob] = useState(null);
-    const [filter, setFilter] = useState('');
+    const [filters, setFilters] = useState({
+        datePosted: '',
+        jobType: '',
+        location: '',
+        distance: '',
+    });
+    const [error, setError] = useState(null);
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const jobTitleParam = queryParams.get('jobTitle') || '';
     const jobLocationParam = queryParams.get('jobLocation') || '';
+    const [resumeDialogOpen, setResumeDialogOpen] = useState(false);
+    const [resumeDetails, setResumeDetails] = useState(null);
+    const [jobIdToApply, setJobIdToApply] = useState(null);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         // Fetch the list of jobs based on pagination, filters, jobTitle, and jobLocation
         const fetchJobs = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const apiUrl = `${process.env.REACT_APP_API_URL}/all_jobs?limit=10&page=${currentPage}&filter=${filter}&jobTitle=${jobTitleParam}&jobLocation=${jobLocationParam}`;
+                const apiUrl = `${process.env.REACT_APP_API_URL}/all_jobs?limit=10&page=${currentPage}&datePosted=${filters.datePosted}&jobType=${filters.jobType}&jobTitle=${jobTitleParam}&jobLocation=${jobLocationParam}`;
                 const response = await axios.get(apiUrl, {
                     headers: { 'Authorization': `${token}` },
                 });
                 setJobs(response.data.data || []);
                 setTotalPages(response.data.meta.totalPages || 1);
+                setError(null);
             } catch (error) {
                 // Display error toast message
                 const errorData = error.response.data;
                 console.error('Error fetching jobs:', errorData);
+                setJobs([]);
+                setTotalPages(1);
+                toast.error(errorData.messages)
             }
         };
 
         fetchJobs();
-    }, [currentPage, filter, jobTitleParam, jobLocationParam, location.search]);
+    }, [currentPage, filters, jobTitleParam, jobLocationParam, location.search]);
 
     const handlePageChange = (event, value) => {
         setCurrentPage(value);
     };
 
-    const handleFilterChange = (event) => {
-        setFilter(event.target.value);
+    const handleFilterChange = (filterType, value) => {
+        setFilters((prevFilters) => ({
+            ...prevFilters,
+            [filterType]: value,
+        }));
+        setCurrentPage(1); // Reset to the first page when filters change
     };
 
     const handleShowMore = async (jobId) => {
@@ -73,11 +91,134 @@ const JobListing = () => {
         }
     };
 
-    const handleApply = (jobId) => {
-        // Placeholder for handling job applications
-        console.log(`Applying to job with ID: ${jobId}`);
-        // Implement your logic for applying to the job
+    const handleApply = async (jobId) => {
+        // Check if the user is logged in
+        const isLoggedIn = localStorage.getItem('token');
+
+        if (isLoggedIn) {
+            try {
+                const token = localStorage.getItem('token');
+
+                // Check candidate profile to see if resume is uploaded
+                const responseProfile = await axios.get(`${process.env.REACT_APP_API_URL}/get_candidate_profile`, {
+                    headers: { 'Authorization': `${token}` },
+                });
+
+                const candidateProfile = responseProfile.data;
+
+                // Check if the candidate has uploaded a resume
+                if (candidateProfile.candidateWithUserDetails.resume) {
+                    // Resume is uploaded, open the dialog to display resume and upload options
+                    setResumeDialogOpen(true);
+                    setResumeDetails({ resume: candidateProfile.candidateWithUserDetails.resume });
+                    setJobIdToApply(jobId);
+                }
+                else {
+                    // Resume is not uploaded, show message
+                    toast.error('Please upload your resume to apply for this job.');
+                }
+            } catch (error) {
+                const errorData = error.response.data;
+                toast.error(errorData.message);
+                console.error(errorData.message);
+            }
+        } else {
+            toast.info('Please log in or sign up to apply for jobs.');
+            setTimeout(() => {
+                navigate('/Sign Up');
+            }, 3000);
+        }
     };
+
+    // Dialog to display resume and upload options
+    const ResumeDialog = () => {
+        const [selectedResume, setSelectedResume] = useState(null);
+        const { resume: existingResume } = resumeDetails || {};
+        const [uploadNewResume, setUploadNewResume] = useState(!existingResume);
+
+        const handleResumeChange = (event) => {
+            setSelectedResume(event.target.files[0]);
+            setUploadNewResume(true); // Set to true when a new resume is selected
+        };
+
+        const handleApplyWithResume = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const formData = new FormData();
+
+                // Append existing resume to form data if upload new resume is not selected
+                if (!uploadNewResume && existingResume) {
+                    // If using the existing resume, append its content
+                    const existingResumeFile = await fetch(`${process.env.REACT_APP_API_URL}/get_resume`, {
+                        method: 'GET',
+                        headers: { 'Authorization': `${token}` },
+                    });
+
+                    const existingResumeBlob = await existingResumeFile.blob();
+                    formData.append('resume', existingResumeBlob, existingResume);
+                } else if (uploadNewResume) {
+                    // Append selected resume to form data if upload new resume is selected
+                    formData.append('resume', selectedResume);
+                }
+
+                // Append job ID and upload option to form data
+                formData.append('jobId', jobIdToApply);
+                formData.append('uploadNewResume', uploadNewResume);
+
+                // Make an API call to apply for the job with the selected resume
+                const response = await axios.post(
+                    `${process.env.REACT_APP_API_URL}/apply_job`,
+                    formData,
+                    { headers: { 'Authorization': `${token}`, 'Content-Type': 'multipart/form-data' } }
+                );
+
+                if (response.status === 201) {
+                    toast.success(response.data.message);
+                    setCurrentPage(1);
+                } else {
+                    toast.error(response.data.message);
+                }
+
+                // Close the dialog
+                setResumeDialogOpen(false);
+            } catch (error) {
+                const errorData = error.response.data;
+                toast.error(errorData.message);
+                console.error(errorData.message);
+            }
+        };
+
+        return (
+            <Dialog open={resumeDialogOpen} onClose={() => setResumeDialogOpen(false)} maxWidth="sm" fullWidth>
+                <DialogTitle>Your Resume</DialogTitle>
+                <DialogContent>
+                    {existingResume && (
+                        <div>
+                            <Typography variant="h5">Existing Resume Details:</Typography>
+                            <Typography>Name: {existingResume}</Typography>
+                        </div>
+                    )}
+
+                    <Divider sx={{ my: 2 }} />
+
+                    <Typography variant="h5">Upload New Resume:</Typography>
+
+                    <input type="file" accept=".pdf, .doc, .docx" onChange={handleResumeChange} />
+                </DialogContent>
+
+                <DialogActions>
+                    <Button onClick={() => setResumeDialogOpen(false)} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleApplyWithResume} color="primary" variant="contained">
+                        Apply
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        );
+    };
+
+
 
     const handleCloseDialog = () => {
         setSelectedJob(null);
@@ -99,8 +240,10 @@ const JobListing = () => {
             <AppAppBar />
             <Container maxWidth="md">
                 <Typography variant="h4" gutterBottom marked="center" align="center" sx={{ mt: 3, mb: 2 }}>
-                    Job Listings
+                    {/* Job Listings */}
                 </Typography>
+                {/* Filter bar */}
+                <FilterBar onFilterChange={handleFilterChange} />
                 <Box>
                     {/* Job listings */}
                     {jobs.map((job) => (
@@ -109,8 +252,11 @@ const JobListing = () => {
                                 {job.jobTitle}
                             </Typography>
                             <Typography>Description: {job.jobDescription}</Typography>
-                            <Typography>Location: {job.jobLocation}</Typography>
-                            <Typography>Type: {job.jobType}</Typography>
+                            <Typography>
+                                Location: {job.jobLocation ? `${job.jobLocation.streetAddress}, ${job.jobLocation.city}, ${job.jobLocation.province} ${job.jobLocation.postalCode}` : 'N/A'}
+                            </Typography>
+                            <Typography>Type: {formatKeyForDisplay(job.jobType)}</Typography>
+                            <DialogContentText>{formatKeyForDisplay(selectedJob?.jobType)}</DialogContentText>
                             <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
                                 <Button variant="outlined" color="primary" onClick={() => handleShowMore(job._id)}>
                                     Show More
@@ -131,7 +277,13 @@ const JobListing = () => {
                             sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
                         />
                     )}
-                    {jobs.length === 0 && (
+                    {jobs.length === 0 && error && (
+                        <Typography variant="body1" sx={{ mt: 2, textAlign: 'center', color: 'red' }}>
+                            {error}
+                        </Typography>
+                    )}
+                    {/* Display message when there are no jobs */}
+                    {jobs.length === 0 && !error && (
                         <Typography variant="body1" sx={{ mt: 2, textAlign: 'center' }}>
                             No jobs found with the given search criteria.
                         </Typography>
@@ -147,7 +299,11 @@ const JobListing = () => {
                                 <Typography variant="h6">Description</Typography>
                                 <DialogContentText>{selectedJob?.jobDescription}</DialogContentText>
                                 <Typography variant="h6">Location</Typography>
-                                <DialogContentText>{selectedJob?.jobLocation}</DialogContentText>
+                                <DialogContentText>
+                                    {selectedJob?.jobLocation
+                                        ? `${selectedJob?.jobLocation.streetAddress}, ${selectedJob?.jobLocation.city}, ${selectedJob?.jobLocation.province} ${selectedJob?.jobLocation.postalCode}`
+                                        : 'N/A'}
+                                </DialogContentText>
                                 <Typography variant="h6">Type</Typography>
                                 <DialogContentText>{formatKeyForDisplay(selectedJob?.jobType)}</DialogContentText>
                                 <Typography variant="h6">Experience</Typography>
@@ -191,6 +347,7 @@ const JobListing = () => {
                         </Button>
                     </DialogActions>
                 </Dialog>
+                <ResumeDialog />
             </Container>
             <ToastContainer />
         </React.Fragment>

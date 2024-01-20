@@ -8,15 +8,31 @@ import AppAppBar from '../component/AppAppBar';
 import Typography from '@mui/material/Typography';
 import Switch from '@mui/material/Switch';
 import RFTextField from '../form/RFTextField';
-import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormButton from '../form/FormButton';
 import FormFeedback from '../form/FormFeedback';
 import withRoot from '../withRoot';
+import JobRequirementsCheckboxGroup from '../component/JobRequirementsCheckboxGroup';
+import WorkScheduleCheckboxGroup from '../component/WorkScheduleCheckboxGroup';
+import SupplementalPayCheckboxGroup from '../component/SupplementalPayCheckboxGroup';
+import BenefitsOfferedSection from '../component/BenefitsOfferedCheckbox';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+const provinces = [
+    'Alberta',
+    'British Columbia',
+    'Manitoba',
+    'New Brunswick',
+    'Newfoundland and Labrador',
+    'Nova Scotia',
+    'Ontario',
+    'Prince Edward Island',
+    'Quebec',
+    'Saskatchewan',
+];
 
 const EditJobPostingForm = () => {
     const navigate = useNavigate();
@@ -145,8 +161,49 @@ const EditJobPostingForm = () => {
                                             <Field
                                                 component={RFTextField}
                                                 disabled={submitting || sent}
-                                                label="Job Location"
-                                                name="jobLocation"
+                                                label="Street Address"
+                                                name="jobLocation.streetAddress"
+                                                fullWidth
+                                                required
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={6}>
+                                            <Field
+                                                component={RFTextField}
+                                                disabled={submitting || sent}
+                                                label="City"
+                                                name="jobLocation.city"
+                                                fullWidth
+                                                required
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                    <Grid container spacing={2}>
+                                        <Grid item xs={12} sm={6}>
+                                            <Field
+                                                component={RFTextField}
+                                                disabled={submitting || sent}
+                                                label="Province"
+                                                name="jobLocation.province"
+                                                fullWidth
+                                                select
+                                                SelectProps={{ native: true }}
+                                                required
+                                            >
+                                                <option value="">Select</option>
+                                                {provinces.map((province) => (
+                                                    <option key={province} value={province}>
+                                                        {province}
+                                                    </option>
+                                                ))}
+                                            </Field>
+                                        </Grid>
+                                        <Grid item xs={12} sm={6}>
+                                            <Field
+                                                component={RFTextField}
+                                                disabled={submitting || sent}
+                                                label="Postal Code"
+                                                name="jobLocation.postalCode"
                                                 fullWidth
                                                 required
                                             />
@@ -162,50 +219,10 @@ const EditJobPostingForm = () => {
                                             />
                                         </Grid>
                                     </Grid>
-                                    <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={10}>
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="jobRequirements.smartServe"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Smart Serve"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="jobRequirements.culinaryTraining"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Culinary Training"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="jobRequirements.redSeal"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Red Seal"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="jobRequirements.mixologyTraining"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Mixology Training"
-                                            />
-                                        </Grid>
-                                    </Grid>
+                                    <Typography variant="h5" gutterBottom>
+                                        Job Requirements
+                                    </Typography>
+                                    <JobRequirementsCheckboxGroup />
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} sm={6}>
                                             <Field
@@ -274,66 +291,7 @@ const EditJobPostingForm = () => {
                                             <Typography variant="h6" color="primary" gutterBottom style={{ marginTop: 10 }}>
                                                 Work Schedule
                                             </Typography>
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="workSchedule.weekDayAvailability"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Week Day Availability"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="workSchedule.weekendAvailability"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="WeekEnd Availability"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="workSchedule.dayShift"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Day Shifts"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="workSchedule.eveningShift"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Evening Shifts"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="workSchedule.onCall"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="On Call"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="workSchedule.holidays"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Holidays"
-                                            />
+                                            <WorkScheduleCheckboxGroup />
                                         </Grid>
                                     </Grid>
                                     <Grid container spacing={2}>
@@ -410,195 +368,13 @@ const EditJobPostingForm = () => {
                                             <Typography variant='h6' style={{ marginTop: '20px' }}>
                                                 Supplemental Pay
                                             </Typography>
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="supplementalPay.overtime"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Overtime"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="supplementalPay.bonusPay"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Bonus Pay"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="supplementalPay.tips"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Tips"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="supplementalPay.signingBonus"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Signing Bonus"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="supplementalPay.retentionBonus"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Retention Bonus"
-                                            />
+                                            <SupplementalPayCheckboxGroup />
                                         </Grid>
                                     </Grid>
                                     <Typography variant="h6" gutterBottom>
                                         Benefits Offered
                                     </Typography>
-                                    <Grid container spacing={2}>
-                                        <Grid item xs={5} sm={10}>
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="benefitsOffered.dentalCare"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Dental Care"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="benefitsOffered.extendedHealthCare"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Extended Health Care"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="benefitsOffered.lifeInsurance"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Life Insurance"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="benefitsOffered.rrspMatch"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="RRSP Match"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="benefitsOffered.paidTimeOff"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Paid Time Off"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="benefitsOffered.onSiteParking"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="On Site Parking"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="benefitsOffered.profitSharing"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Profit Sharing"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="benefitsOffered.flexibleSchedule"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Flexible Schedule"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="benefitsOffered.employeeAssistanceProgram"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Employee Assistance Program"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="benefitsOffered.discountedOrFreeFoodBeverage"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Discounted or Free Food/ Beverages"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="benefitsOffered.tuitionReimbursement"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Tuition Reimbursement"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="benefitsOffered.wellnessProgram"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Wellness Program"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="benefitsOffered.relocationAssistance"
-                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
-                                                    />
-                                                }
-                                                label="Relocation Assistance"
-                                            />
-                                        </Grid>
-                                    </Grid>
+                                    <BenefitsOfferedSection />
                                     {/* Communication Settings */}
                                     <Typography variant="h5" gutterBottom>
                                         Communication Settings
