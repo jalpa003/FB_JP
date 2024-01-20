@@ -6,6 +6,7 @@ const candidateRoutes = require('../controller/candidate');
 const employerRoutes = require('../controller/employer');
 const jobsRoutes = require('../controller/jobs');
 const pricingRoutes = require('../controller/pricing');
+const applicationRoutes = require('../controller/jobApplication');
 
 //authentication Routes
 router.post('/candidate_registration', authRoutes.candidateRegistration);
@@ -34,6 +35,7 @@ router.post('/upload_resume', middleware.verifyToken, uploadMiddleware([{ name: 
 router.delete('/delete_resume', middleware.verifyToken, candidateRoutes.deleteResume);
 router.get('/get_candidate_profile', middleware.verifyToken, candidateRoutes.getCandidateById);
 router.get('/job-search', middleware.verifyToken, jobsRoutes.searchJobs);
+router.get('/get_resume', middleware.verifyToken, candidateRoutes.getResume);
 
 //Employer Profile Routes
 router.post('/employer-profile', middleware.verifyToken, employerRoutes.createEmployerProfile);
@@ -54,5 +56,7 @@ router.put('/update_employee/:employeeId', middleware.verifyToken, employerRoute
 router.delete('/delete_employee/:employeeId', middleware.verifyToken, employerRoutes.deleteEmployee);
 
 router.get('/pricing-plans', pricingRoutes.getPricingPlans);
+
+router.post('/apply_job', middleware.verifyToken, uploadMiddleware([{ name: 'resume', maxCount: 1 },]), applicationRoutes.createJobApplication);
 
 module.exports = router;

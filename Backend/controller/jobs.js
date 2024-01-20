@@ -154,6 +154,25 @@ module.exports.getAllJobs = async (req, res) => {
             searchParams.jobLocation = { $regex: new RegExp(req.query.jobLocation, 'i') };
         }
 
+        // Check if there is a date posted filter
+        if (req.query.datePosted) {
+            const dateFilter = getDateFilter(req.query.datePosted);
+            if (dateFilter) {
+                searchParams.createdAt = dateFilter;
+            }
+        }
+
+        // Check if there is a job type filter
+        if (req.query.jobType && ['fullTime', 'partTime', 'internship', 'casual', 'seasonal'].includes(req.query.jobType)) {
+            searchParams.jobType = req.query.jobType;
+        }
+
+        // Check if there is a distance filter
+        if (req.query.distance) {
+            // Implement distance filtering logic based on your requirements
+            // You may need geospatial queries if you have location data in your database
+        }
+
         // get total count of jobs with search parameters
         const totalCount = await JobPost.countDocuments(searchParams);
 
@@ -243,6 +262,24 @@ module.exports.searchJobs = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
+
+// Helper function to generate date filter
+function getDateFilter(datePosted) {
+    const currentDate = new Date();
+    switch (datePosted) {
+        case 'last24hours':
+            return { $gte: new Date(currentDate - 24 * 60 * 60 * 1000) };
+        case 'last7days':
+            return { $gte: new Date(currentDate - 7 * 24 * 60 * 60 * 1000) };
+        case 'last15days':
+            return { $gte: new Date(currentDate - 15 * 24 * 60 * 60 * 1000) };
+        case 'last30days':
+            return { $gte: new Date(currentDate - 30 * 24 * 60 * 60 * 1000) };
+        default:
+            return null;
+    }
+}
+
 function handleRegistrationError(error, res) {
     if (error.name === 'ValidationError') {
         // Extract validation error messages

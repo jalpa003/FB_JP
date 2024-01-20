@@ -277,6 +277,44 @@ module.exports.uploadResume = async (req, res) => {
     }
 }
 
+module.exports.getResume = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        // Check if the user exists
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if the candidate profile exists
+        const candidateProfile = await Candidate.findOne({ user: userId });
+        if (!candidateProfile) {
+            return res.status(404).json({ message: 'Candidate profile not found' });
+        }
+
+        // Get the resume filename from the candidate profile
+        const resumeFileName = candidateProfile.resume;
+
+        if (!resumeFileName) {
+            return res.status(404).json({ message: 'Resume not found' });
+        }
+
+        // Read the resume file from the uploads directory
+        const resumePath = path.join(__dirname, '../uploads/resumes', resumeFileName);
+        // Check if the resume file exists
+        if (!fs.existsSync(resumePath)) {
+            return res.status(404).json({ message: 'Resume file not found' });
+        }
+
+        // Send the resume file as a response
+        res.sendFile(resumePath);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error retrieving the resume' });
+    }
+};
+
 function handleRegistrationError(error, res) {
     if (error.name === 'ValidationError') {
         // Extract validation error messages

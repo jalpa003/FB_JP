@@ -10,8 +10,22 @@ const jobSchema = new mongoose.Schema({
         required: true,
     },
     jobLocation: {
-        type: String,
-        required: true,
+        streetAddress: {
+            type: String,
+            required: true,
+        },
+        city: {
+            type: String,
+            required: true,
+        },
+        province: {
+            type: String,
+            required: true,
+        },
+        postalCode: {
+            type: String,
+            required: true,
+        },
     },
     uploadedDocument: {
         type: String,
@@ -29,10 +43,26 @@ const jobSchema = new mongoose.Schema({
             type: Boolean,
             default: false
         },
-        mixologyTraining: {
+        workplaceSafety: {
             type: Boolean,
             default: false
-        }
+        },
+        customerService: {
+            type: Boolean,
+            default: false
+        },
+        barTending: {
+            type: Boolean,
+            default: false
+        },
+        barista: {
+            type: Boolean,
+            default: false
+        },
+        fineDining: {
+            type: Boolean,
+            default: false
+        },
     },
     experience: {
         type: String,
@@ -201,6 +231,10 @@ const jobSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    appliedUsers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    }],
 }, { timestamps: true });
 const Job = mongoose.model('Job', jobSchema);
 

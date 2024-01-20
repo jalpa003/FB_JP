@@ -28,7 +28,12 @@ const candidateProfile = new mongoose.Schema({
         type: Boolean,
         default: true
     },
-    address: String,
+    address: {
+        streetAddress: String,
+        city: String,
+        province: String,
+        postalCode: String,
+    },
     willingToRelocate: {
         type: Boolean,
         default: false
