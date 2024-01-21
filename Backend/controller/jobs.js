@@ -1,4 +1,5 @@
 const JobPost = require('../models/jobs');
+const CandidateProfile = require('../models/candidates');
 module.exports.createJobPosting = async (req, res) => {
     try {
         // Get user ID from the token
@@ -23,13 +24,34 @@ module.exports.createJobPosting = async (req, res) => {
 //get all job posting by employer id
 module.exports.getAllJobsByEmployerID = async (req, res) => {
     try {
-        const jobs = await JobPost.find({ user: req.user.id });
+        const jobs = await JobPost.find({ user: req.user.id }).populate({
+            path: 'appliedUsers',
+            model: 'User',
+            select: 'firstName lastName',
+            options: { strictPopulate: false },
+        });
+
         if (!jobs) throw Error("No jobs found");
-        res.status(200).json({ jobs: jobs });
-    }
-    catch (error) {
+
+        // Fetch the resume from CandidateProfile for each applied user
+        const populatedJobs = await Promise.all(jobs.map(async (job) => {
+            const populatedUsers = await Promise.all(job.appliedUsers.map(async (appliedUser) => {
+                const candidateProfile = await CandidateProfile.findOne({ user: appliedUser._id });
+                return {
+                    _id: appliedUser._id,
+                    firstName: appliedUser.firstName,
+                    lastName: appliedUser.lastName,
+                    resume: candidateProfile ? candidateProfile.resume : null,
+                };
+            }));
+
+            return { ...job._doc, appliedUsers: populatedUsers };
+        }));
+
+        res.status(200).json({ jobs: populatedJobs });
+    } catch (error) {
         console.error(error);
-        res.send({ statusCode: 500, message: error.message })
+        res.status(500).json({ statusCode: 500, message: error.message });
     }
 };
 

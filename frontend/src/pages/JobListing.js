@@ -16,9 +16,11 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContentText from '@mui/material/DialogContentText';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import withRoot from '../withRoot';
 import { useNavigate } from 'react-router-dom';
+import AppliedUsersDialog from './AppliedUsersDialog';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -28,6 +30,7 @@ const JobListing = () => {
 
     // State to manage the close dialog
     const [openCloseDialog, setOpenCloseDialog] = useState({ open: false, jobId: null, closeReason: '' });
+    const [openAppliedUsersDialog, setOpenAppliedUsersDialog] = useState({ open: false, job: null });
 
     useEffect(() => {
         // Fetch the list of jobs for the logged-in employer
@@ -114,6 +117,14 @@ const JobListing = () => {
         }
     };
 
+    const handleOpenAppliedUsersDialog = (job) => {
+        setOpenAppliedUsersDialog({ open: true, job });
+    };
+
+    const handleCloseAppliedUsersDialog = () => {
+        setOpenAppliedUsersDialog({ open: false, job: null });
+    };
+
     return (
         <React.Fragment>
             <AppAppBar />
@@ -150,6 +161,17 @@ const JobListing = () => {
                                 </Typography>
                                 {/* <Typography>Location: {job.jobLocation}</Typography> */}
                                 <Typography>Posted on: {new Date(job.createdAt).toLocaleDateString()}</Typography>
+                                <Typography variant="h5">
+                                    Applied Users: {' '}
+                                    <Link
+                                        component="button"
+                                        variant="body2"
+                                        onClick={() => handleOpenAppliedUsersDialog(job)}
+                                        color="primary"
+                                    >
+                                        View ({job.appliedUsers.length})
+                                    </Link>
+                                </Typography>
                                 <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
                                     <IconButton color="primary" aria-label="edit job" onClick={() => handleEditJob(job._id)}>
                                         <EditIcon />
@@ -170,6 +192,11 @@ const JobListing = () => {
                             </Paper>
                         ))
                     )}
+                    <AppliedUsersDialog
+                        open={openAppliedUsersDialog.open}
+                        handleClose={handleCloseAppliedUsersDialog}
+                        job={openAppliedUsersDialog.job}
+                    />
                     {/* Close Dialog */}
                     <Dialog open={openCloseDialog.open} onClose={handleCloseDialog} fullWidth maxWidth="sm">
                         <DialogTitle>Close Job</DialogTitle>
