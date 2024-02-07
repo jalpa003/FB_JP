@@ -10,14 +10,13 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
-import DialogContentText from '@mui/material/DialogContentText';
-import Grid from '@mui/material/Grid';
 import Divider from '@mui/material/Divider';
 import AppAppBar from '../component/AppAppBar';
 import FilterBar from '../component/FilterBar';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import JobDetailsDialog from '../component/JobDetailsDialog';
 
 const JobListing = () => {
     const [jobs, setJobs] = useState([]);
@@ -29,6 +28,10 @@ const JobListing = () => {
         jobType: '',
         location: '',
         distance: '',
+        industryType: '',
+        pay: '',
+        payRate: '',
+        workAvailability: '',
     });
     const [error, setError] = useState(null);
     const location = useLocation();
@@ -46,7 +49,10 @@ const JobListing = () => {
         const fetchJobs = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const apiUrl = `${process.env.REACT_APP_API_URL}/all_jobs?limit=10&page=${currentPage}&datePosted=${filters.datePosted}&jobType=${filters.jobType}&jobTitle=${jobTitleParam}&jobLocation=${jobLocationParam}`;
+                // Encode the industryType before appending it to the URL
+                const encodedIndustryType = encodeURIComponent(filters.industryType);
+
+                const apiUrl = `${process.env.REACT_APP_API_URL}/all_jobs?limit=10&page=${currentPage}&datePosted=${filters.datePosted}&jobType=${filters.jobType}&jobTitle=${jobTitleParam}&jobLocation=${filters.location}&industryType=${encodedIndustryType}&pay=${filters.pay}&payRate=${filters.payRate}&workAvailability=${filters.workAvailability}`;
                 const response = await axios.get(apiUrl, {
                     headers: { 'Authorization': `${token}` },
                 });
@@ -62,7 +68,6 @@ const JobListing = () => {
                 toast.error(errorData.messages)
             }
         };
-
         fetchJobs();
     }, [currentPage, filters, jobTitleParam, jobLocationParam, location.search]);
 
@@ -248,7 +253,13 @@ const JobListing = () => {
                                 Location: {job.jobLocation ? `${job.jobLocation.streetAddress}, ${job.jobLocation.city}, ${job.jobLocation.province} ${job.jobLocation.postalCode}` : 'N/A'}
                             </Typography>
                             <Typography>Type: {formatKeyForDisplay(job.jobType)}</Typography>
-                            <DialogContentText>{formatKeyForDisplay(selectedJob?.jobType)}</DialogContentText>
+                            <Typography>{formatKeyForDisplay(selectedJob?.jobType)}</Typography>
+                            <Typography>Industry Type: {job.industryType ? job.industryType : 'N/A'}</Typography>
+                            {job.showWageRate && (
+                                <Typography>
+                                    Pay: ${job.payAmount} {job.payRate === 'perHour' ? 'per hour' : 'per year'}
+                                </Typography>
+                            )}
                             <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
                                 <Button variant="outlined" color="primary" onClick={() => handleShowMore(job._id)}>
                                     Show More
@@ -282,63 +293,11 @@ const JobListing = () => {
                     )}
                 </Box>
                 {/* Job details Dialog */}
-                <Dialog open={!!selectedJob} onClose={handleCloseDialog} maxWidth="md">
-                    <DialogTitle>{selectedJob?.jobTitle}</DialogTitle>
-                    <DialogContent>
-                        {/* Display job details here */}
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} md={6}>
-                                <Typography variant="h6">Description</Typography>
-                                <DialogContentText>{selectedJob?.jobDescription}</DialogContentText>
-                                <Typography variant="h6">Location</Typography>
-                                <DialogContentText>
-                                    {selectedJob?.jobLocation
-                                        ? `${selectedJob?.jobLocation.streetAddress}, ${selectedJob?.jobLocation.city}, ${selectedJob?.jobLocation.province} ${selectedJob?.jobLocation.postalCode}`
-                                        : 'N/A'}
-                                </DialogContentText>
-                                <Typography variant="h6">Type</Typography>
-                                <DialogContentText>{formatKeyForDisplay(selectedJob?.jobType)}</DialogContentText>
-                                <Typography variant="h6">Experience</Typography>
-                                <DialogContentText>{selectedJob?.experience}</DialogContentText>
-                                <Typography variant="h6">Hours per Week</Typography>
-                                <DialogContentText>{selectedJob?.hoursPerWeek}</DialogContentText>
-                                <Typography variant="h6">Status</Typography>
-                                <DialogContentText>{selectedJob?.status}</DialogContentText>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <Typography variant="h6">Preferred Start Date</Typography>
-                                <Typography>{new Date(selectedJob?.preferredStartDate).toLocaleDateString()}</Typography>
-
-                                {/* Display true values from jobRequirements */}
-                                <Typography variant="h6" mt={2}>Job Requirements:</Typography>
-                                {Object.entries(selectedJob?.jobRequirements || {}).map(([key, value]) => value && (
-                                    <Typography key={key}>- {formatKeyForDisplay(key)}</Typography>
-                                ))}
-                                <Typography variant="h6" mt={2}>Work Schedule:</Typography>
-                                {Object.entries(selectedJob?.workSchedule || {}).map(([key, value]) => value && (
-                                    <Typography key={key}>- {formatKeyForDisplay(key)}</Typography>
-                                ))}
-                                <Typography variant="h6" mt={2}>Supplemental Pay:</Typography>
-                                {Object.entries(selectedJob?.supplementalPay || {}).map(([key, value]) => value && (
-                                    <Typography key={key}>- {formatKeyForDisplay(key)}</Typography>
-                                ))}
-                                <Typography variant="h6" mt={2}>Benefits Offered:</Typography>
-                                {Object.entries(selectedJob?.benefitsOffered || {}).map(([key, value]) => value && (
-                                    <Typography key={key}>- {formatKeyForDisplay(key)}</Typography>
-                                ))}
-                            </Grid>
-                        </Grid>
-                    </DialogContent>
-                    <Divider sx={{ my: 2 }} />
-                    <DialogActions>
-                        <Button onClick={handleCloseDialog} color="primary">
-                            Close
-                        </Button>
-                        <Button onClick={() => handleApply(selectedJob?._id)} color="primary" variant="contained">
-                            Apply
-                        </Button>
-                    </DialogActions>
-                </Dialog>
+                <JobDetailsDialog
+                    selectedJob={selectedJob}
+                    handleCloseDialog={handleCloseDialog}
+                    handleApply={handleApply}
+                />
                 <ResumeDialog />
             </Container>
             <ToastContainer />

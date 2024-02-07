@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Field, Form, FormSpy } from 'react-final-form';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-// import Link from '@mui/material/Link';
 import Typography from '../component/Typography';
 import AppAppBar from '../component/AppAppBar';
 import AppForm from '../component/AppForm';
@@ -14,14 +13,11 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-// import { jwtDecode as jwt_decode } from 'jwt-decode';
 
 function EmployerProfile() {
     const navigate = useNavigate();
     const [sent, setSent] = useState(false);
     const [existingDetails, setExistingDetails] = useState({});
-    console.log(existingDetails.isProfileComplete);
-
 
     useEffect(() => {
         // Fetch existing details when the component mounts
@@ -85,9 +81,16 @@ function EmployerProfile() {
             <AppAppBar />
             <AppForm>
                 <React.Fragment>
-                    <Typography variant="h4" gutterBottom marked="center" align="center">
-                        Employer Profile
-                    </Typography>
+                    <Box sx={{ textAlign: 'center', mt: 3, mb: 2 }}>
+                        <Typography variant="h4" gutterBottom marked="center">
+                            {`${existingDetails.firstName} ${existingDetails.lastName}`}
+                        </Typography>
+                        {existingDetails.subscription && (
+                            <Typography variant="subtitle1" color="textSecondary">
+                                Subscribed Plan: {existingDetails.subscription.planName}
+                            </Typography>
+                        )}
+                    </Box>
 
                     <Typography variant="subtitle1" align="center">
                         Complete your employer profile to get started.
@@ -179,15 +182,15 @@ function EmployerProfile() {
                                 SelectProps={{ native: true }}
                             >
                                 <option value="">Select</option>
-                                <option value="Restaurant/Pub">Restaurant/Pub</option>
-                                <option value="Bar/Nightclub">Bar/Nightclub</option>
-                                <option value="Fine Dining">Fine Dining</option>
-                                <option value="Banquet Hall">Banquet Hall</option>
-                                <option value="Resort">Resort</option>
-                                <option value="Tavern">Tavern</option>
-                                <option value="Retirement Home">Retirement Home</option>
-                                <option value="Café/Bistro">Café/Bistro</option>
+                                <option value="Fine Dinning">Fine Dinning</option>
+                                <option value="Fast Food">Fast Food</option>
+                                <option value="Cafés">Cafés</option>
                                 <option value="Catering">Catering</option>
+                                <option value="Bakeries">Bakeries</option>
+                                <option value="Pubs and Bars">Pubs and Bars</option>
+                                <option value="Brewers, Winneries & Distilleries">Brewers, Winneries & Distilleries</option>
+                                <option value="Casual Dinning">Casual Dinning</option>
+                                <option value="Banquet Facilities">Banquet Facilities</option>
                             </Field>
                             <Field
                                 component={RFTextField}

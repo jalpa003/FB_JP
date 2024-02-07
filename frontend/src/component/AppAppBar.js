@@ -67,6 +67,11 @@ function AppAppBar() {
         }
     };
 
+    const handlePricingClick = () => {
+        // Redirect to the pricing page
+        navigate('/pricing');
+    };
+
     return (
         <div>
             <AppBar position="fixed">
@@ -102,6 +107,17 @@ function AppAppBar() {
                                 >
                                     {decodedToken.role === 'candidate' ? 'Find Jobs' : 'Job Listing'}
                                 </Link>
+                                {decodedToken.role === 'employer' && (
+                                    <Link
+                                        color="inherit"
+                                        variant="h6"
+                                        underline="none"
+                                        onClick={handlePricingClick}
+                                        sx={{ ...rightLink }}
+                                    >
+                                        {'Subscriptions'}
+                                    </Link>
+                                )}
                                 <Link
                                     color="inherit"
                                     variant="h6"

@@ -67,7 +67,27 @@ const EditJobPostingForm = () => {
 
     const validate = (values) => {
         const errors = {};
-        // Add validation logic if needed
+
+        if (!values.jobTitle) {
+            errors.jobTitle = 'Job Title is required';
+        }
+
+        if (!values.jobDescription) {
+            errors.jobDescription = 'Job Description is required';
+        }
+
+        if (!values.jobType) {
+            errors.jobType = 'Job Type is required';
+        }
+
+        if (!values.jobLocation) {
+            errors.jobLocation = 'Job Location is required';
+        }
+
+        if (values.hoursPerWeek !== undefined && values.hoursPerWeek < 0) {
+            errors.hoursPerWeek = 'Hours per week must be a positive number';
+        }
+
         return errors;
     };
 
@@ -216,6 +236,8 @@ const EditJobPostingForm = () => {
                                                 label="Hours Per Week"
                                                 name="hoursPerWeek"
                                                 fullWidth
+                                                type="number"
+                                                validate={(value) => (value && parseInt(value, 10) < 0 ? 'Please enter a positive number' : undefined)}
                                             />
                                         </Grid>
                                     </Grid>

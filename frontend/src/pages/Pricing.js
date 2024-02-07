@@ -7,14 +7,14 @@ import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
-import withRoot from '../withRoot';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 
 const PricingPage = () => {
   const [pricingPlans, setPricingPlans] = useState([]);
 
   useEffect(() => {
-    // Fetch pricing details from the backend API
     const fetchPricingDetails = async () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/pricing-plans`);
@@ -27,13 +27,40 @@ const PricingPage = () => {
     fetchPricingDetails();
   }, []);
 
+  const handleBuyNow = async (planName) => {
+    try {
+      const token = localStorage.getItem('token');
+
+      // Check if the token exists
+      if (!token) {
+        toast.error('Please log in to purchase a plan.');
+        return;
+      }
+
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/create-checkout-session`,
+        { selectedPlan: planName },
+        { headers: { 'Authorization': `${token}` } }
+      );
+
+      const checkoutUrl = response.data.checkoutUrl;
+
+      // Redirect to the checkout page
+      window.location.href = checkoutUrl;
+    } catch (error) {
+      const errorData = error.response.data;
+      console.log(errorData.message);
+      toast.error(errorData.message);
+    }
+  };
+
   return (
     <React.Fragment>
       <AppAppBar />
       <Box
         sx={{
           display: 'flex',
-          backgroundImage: 'url("https://t.ly/BnYyp")',
+          backgroundImage: 'url("http://tinyurl.com/3yfbbbun")',
           backgroundSize: 'cover',
           backgroundRepeat: 'no-repeat',
           alignItems: 'center',
@@ -56,7 +83,7 @@ const PricingPage = () => {
                       {plan.name}
                     </Typography>
                     <Typography variant="h4" mb={2} align="center">
-                      {plan.price}$
+                      ${plan.price}
                     </Typography>
                     <Typography variant="body2" mb={2} align="center">
                       {plan.description}
@@ -67,9 +94,19 @@ const PricingPage = () => {
                       ))}
                     </ul>
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                      <Button variant="contained" color="primary">
-                        Buy Now
-                      </Button>
+                      {plan.price !== 0 ? (
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => handleBuyNow(plan.name)}
+                        >
+                          Buy Now
+                        </Button>
+                      ) : (
+                        <Typography variant="caption" color="textSecondary">
+                          Free Plan
+                        </Typography>
+                      )}
                     </Box>
                   </CardContent>
                 </Card>
@@ -78,8 +115,9 @@ const PricingPage = () => {
           </Grid>
         </Container>
       </Box>
+      <ToastContainer />
     </React.Fragment>
   );
 };
 
-export default withRoot(PricingPage);
+export default PricingPage;

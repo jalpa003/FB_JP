@@ -11,7 +11,7 @@ const JobRequirementsCheckboxGroup = () => {
         'redSeal',
         'workplaceSafety',
         'customerService',
-        'barTending',
+        'bartending',
         'barista',
         'fineDining',
     ];

@@ -51,7 +51,7 @@ export default function ProductHero() {
                         fontSize: '2rem',
                     }
                 }>
-                Savor Opportunities, Toast to Careers
+                Savour Opportunities, Toast to Careers
             </Typography>
             <Typography
                 color="inherit"

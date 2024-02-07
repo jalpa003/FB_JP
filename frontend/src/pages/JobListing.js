@@ -9,6 +9,13 @@ import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
+import RestoreIcon from '@mui/icons-material/Restore';
+import Tooltip from '@mui/material/Tooltip';
+import AddIcon from '@mui/icons-material/Add';
+import { styled } from '@mui/system';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -23,6 +30,20 @@ import { useNavigate } from 'react-router-dom';
 import AppliedUsersDialog from './AppliedUsersDialog';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+const CreateJobButton = styled(FormButton)(({ theme }) => ({
+    backgroundImage: 'linear-gradient(45deg, #FF4081 30%, #FF5C7F 90%)', // Pinkish gradient
+    color: 'white',
+    padding: theme.spacing(2),
+    borderRadius: theme.spacing(1),
+    boxShadow: '0 3px 5px 2px rgba(255, 64, 129, .3)', // Pink shadow
+    '&:hover': {
+        backgroundImage: 'linear-gradient(45deg, #FF5C7F 30%, #FF4081 90%)', // Darker pinkish gradient on hover
+    },
+    transition: 'background-image 0.3s',
+}));
+
+
 
 const JobListing = () => {
     const navigate = useNavigate();
@@ -117,6 +138,28 @@ const JobListing = () => {
         }
     };
 
+    const handleReopenJob = async (jobId) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.post(
+                `${process.env.REACT_APP_API_URL}/reopen_job/${jobId}`,
+                {},
+                { headers: { 'Authorization': `${token}` } }
+            );
+
+            toast.success(response.data.message);
+            // Update the job list after reopening
+            setJobs((prevJobs) => prevJobs.map((job) => (job._id === jobId ? { ...job, closed: false } : job)));
+            // Reload the page after reopening the job
+            window.location.reload();
+        } catch (error) {
+            const errorData = error.response.data;
+            toast.error(errorData.messages);
+            console.error('Error reopening job:', error);
+        }
+    };
+
+
     const handleOpenAppliedUsersDialog = (job) => {
         setOpenAppliedUsersDialog({ open: true, job });
     };
@@ -137,19 +180,51 @@ const JobListing = () => {
                 }}
             >
                 <Container maxWidth="md">
-                    <Typography variant="h4" gutterBottom marked="center" align="center" sx={{ mt: 3, mb: 2 }}>
-                        Your Job Listings
-                    </Typography>
+                    {jobs.length > 0 && (
+                        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
+                            <CreateJobButton onClick={handleCreateJob}>
+                                <AddIcon />
+                                Create a New Job
+                            </CreateJobButton>
+                        </Box>
+                    )}
                     {jobs.length === 0 ? (
-                        <Typography variant="body1" align="center">
-                            You haven't posted any jobs yet. Click the button below to create a new job.
-                        </Typography>
+                        <Card
+                            sx={{
+                                maxWidth: 400,
+                                borderRadius: 8,
+                                overflow: 'hidden',
+                                boxShadow: 8,
+                                margin: 'auto',
+                                marginTop: 10,
+                            }}
+                        >
+                            <CardMedia
+                                component="img"
+                                height="200"
+                                image="http://tinyurl.com/yzd6pnfm"
+                                alt="Create New Job Background"
+                            />
+                            <CardContent>
+                                <Typography variant="h5" component="div" gutterBottom>
+                                    Ready to Post a New Job?
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    Click the button below to create a new job listing and find the perfect candidate!
+                                </Typography>
+                                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
+                                    <CreateJobButton onClick={handleCreateJob}>
+                                        Create a New Job
+                                    </CreateJobButton>
+                                </Box>
+                            </CardContent>
+                        </Card>
                     ) : (
                         jobs.map((job) => (
                             <Paper key={job._id} elevation={3} sx={{ p: 3, mb: 3 }} disabled={job.isClosed}>
                                 {job.isClosed && (
                                     <Typography variant="subtitle2" color="error">
-                                        Closed Job
+                                        Closed Job - {job.closeReason}
                                     </Typography>
                                 )}
                                 <Typography variant="h6" mb={2}>
@@ -159,6 +234,7 @@ const JobListing = () => {
                                 <Typography>
                                     Location: {job.jobLocation ? `${job.jobLocation.streetAddress}, ${job.jobLocation.city}, ${job.jobLocation.province} ${job.jobLocation.postalCode}` : 'N/A'}
                                 </Typography>
+                                <Typography>Industry: {job.industryType}</Typography>
                                 {/* <Typography>Location: {job.jobLocation}</Typography> */}
                                 <Typography>Posted on: {new Date(job.createdAt).toLocaleDateString()}</Typography>
                                 <Typography variant="h5">
@@ -173,20 +249,37 @@ const JobListing = () => {
                                     </Link>
                                 </Typography>
                                 <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-                                    <IconButton color="primary" aria-label="edit job" onClick={() => handleEditJob(job._id)}>
-                                        <EditIcon />
-                                    </IconButton>
-                                    <IconButton color="error" aria-label="delete job" onClick={() => handleDeleteJob(job._id)}>
-                                        <DeleteIcon />
-                                    </IconButton>
-                                    {!job.isClosed && (
-                                        <IconButton
-                                            color="info"
-                                            aria-label="close job"
-                                            onClick={() => handleOpenCloseDialog(job._id)}
-                                        >
-                                            <CloseIcon />
+                                    <Tooltip title="Edit Job" arrow>
+                                        <IconButton color="primary" aria-label="edit job" onClick={() => handleEditJob(job._id)}>
+                                            <EditIcon />
                                         </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title="Delete Job" arrow>
+                                        <IconButton color="error" aria-label="delete job" onClick={() => handleDeleteJob(job._id)}>
+                                            <DeleteIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                    {!job.isClosed && (
+                                        <Tooltip title="Close Job" arrow>
+                                            <IconButton
+                                                color="info"
+                                                aria-label="close job"
+                                                onClick={() => handleOpenCloseDialog(job._id)}
+                                            >
+                                                <CloseIcon />
+                                            </IconButton>
+                                        </Tooltip>
+                                    )}
+                                    {job.isClosed && (
+                                        <Tooltip title="Reopen Job" arrow>
+                                            <IconButton
+                                                color="success"
+                                                aria-label="reopen job"
+                                                onClick={() => handleReopenJob(job._id)}
+                                            >
+                                                <RestoreIcon />
+                                            </IconButton>
+                                        </Tooltip>
                                     )}
                                 </Box>
                             </Paper>
@@ -220,11 +313,6 @@ const JobListing = () => {
                             </FormButton>
                         </DialogActions>
                     </Dialog>
-                    <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
-                        <FormButton variant="contained" color="primary" onClick={handleCreateJob}>
-                            Create a New Job
-                        </FormButton>
-                    </Box>
                 </Container>
             </Box>
             <ToastContainer />

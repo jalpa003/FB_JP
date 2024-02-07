@@ -21,6 +21,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Popover from '@mui/material/Popover';
+import DesiredScheduleInput from '../component/DesiredScheduleInput';
 
 const jobTitles = [
     'Chef',
@@ -457,14 +458,30 @@ function CandidateProfile() {
                                         label="Headline"
                                         name="headline"
                                     />
-                                    <Field
-                                        component={RFTextField}
-                                        disabled={submitting || sent}
-                                        fullWidth
-                                        label="Phone"
-                                        name="phone"
-                                        required
-                                    />
+                                    <Grid container spacing={2}>
+                                        <Grid item xs={12} sm={6}>
+                                            <Field
+                                                component={RFTextField}
+                                                disabled={submitting || sent}
+                                                fullWidth
+                                                label="Phone"
+                                                name="phone"
+                                                required
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={4}>
+                                            <Field name="showPhoneToEmployers" type="checkbox">
+                                                {({ input }) => (
+                                                    <FormControlLabel
+                                                        control={
+                                                        <Checkbox {...input} />}
+                                                        label="Viewable by Employers?"
+                                                        sx={{ paddingTop: '20px' }}
+                                                    />
+                                                )}
+                                            </Field>
+                                        </Grid>
+                                    </Grid>
                                     <Field
                                         autoComplete="email"
                                         component={RFTextField}
@@ -509,19 +526,6 @@ function CandidateProfile() {
                                         label="Postal Code"
                                         name="address.postalCode"
                                     />
-                                    {/* <Field
-                                        component={RFTextField}
-                                        disabled={submitting || sent}
-                                        type="file"
-                                    /> */}
-                                    {/* <Field
-                                type="checkbox"
-                                component={RFTextField}
-                                disabled={submitting || sent}
-                                fullWidth
-                                label="Viewable by Employers?"
-                                name="viewableResumeByEmployers"
-                            /> */}
                                     <Field
                                         component={RFTextField}
                                         disabled={submitting || sent}
@@ -553,6 +557,11 @@ function CandidateProfile() {
                                         <option value="Temp">Temporary</option>
                                         <option value="Apprentice">Apprentice</option>
                                     </Field>
+                                    <Grid item xs={12} style={{ marginTop: '16px' }} />
+                                    <Typography variant="h6" gutterBottom>
+                                        Desired Work Schedule
+                                    </Typography>
+                                    <DesiredScheduleInput disabled={submitting} submitting={submitting} sent={sent} />
                                     <Typography variant="h6" gutterBottom>
                                         Job Training
                                     </Typography>
@@ -612,7 +621,7 @@ function CandidateProfile() {
                                                 control={
                                                     <Field
                                                         type="checkbox"
-                                                        name="jobTraining.barTending"
+                                                        name="jobTraining.bartending"
                                                         render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                                                     />
                                                 }

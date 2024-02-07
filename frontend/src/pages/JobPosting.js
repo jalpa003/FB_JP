@@ -82,7 +82,7 @@ const JobPostingForm = () => {
         } catch (error) {
             const errorData = error.response.data;
             console.log(errorData.messages);
-            toast.error(errorData.messages)
+            toast.error(errorData.messages[0])
         }
     };
     return (
@@ -197,6 +197,8 @@ const JobPostingForm = () => {
                                                 label="Hours Per Week"
                                                 name="hoursPerWeek"
                                                 fullWidth
+                                                type="number"
+                                                validate={(value) => (value >= 0 ? undefined : 'Please enter a positive number')}
                                             />
                                         </Grid>
                                     </Grid>
