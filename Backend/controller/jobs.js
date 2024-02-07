@@ -1,13 +1,23 @@
 const JobPost = require('../models/jobs');
 const CandidateProfile = require('../models/candidates');
+const EmployerProfile = require('../models/employers');
+const { getDateFilter, handleRegistrationError, getWageFilter, getWorkAvailabilityFilter } = require('../middleware/jobUtils');
 module.exports.createJobPosting = async (req, res) => {
     try {
         // Get user ID from the token
         const userId = req.user.id;
 
+        // Fetch employer's profile to get the industry type
+        const employerProfile = await EmployerProfile.findOne({ user: userId });
+
+        if (!employerProfile) {
+            return res.status(404).json({ message: "Employer profile not found." });
+        }
+
         // Create a new job posting
         const newJob = new JobPost({
             user: userId,
+            industryType: employerProfile.fAndBIndustry,
             ...req.body,
         });
 
@@ -156,6 +166,37 @@ module.exports.closeJob = async (req, res) => {
     }
 }
 
+//reopen job
+module.exports.reopenJob = async (req, res) => {
+    try {
+        const jobId = req.params.jobId;
+
+        // Find the job by ID
+        const job = await JobPost.findById(jobId);
+
+        // Check if the job exists
+        if (!job) {
+            return res.status(404).json({ message: 'Job not found' });
+        }
+
+        // Check if the job is already open
+        if (!job.isClosed) {
+            return res.status(400).json({ message: 'Job is already open' });
+        }
+
+        // Update the job to mark it as open
+        job.isClosed = false;
+        job.closeReason = null;
+        job.closedAt = null;
+        await job.save();
+
+        res.status(200).json({ message: 'Job reopened successfully' });
+    } catch (error) {
+        console.error('Error reopening job:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+}
+
 //show all jobs
 module.exports.getAllJobs = async (req, res) => {
     try {
@@ -173,7 +214,9 @@ module.exports.getAllJobs = async (req, res) => {
 
         // Check if there is a location search query
         if (req.query.jobLocation) {
-            searchParams.jobLocation = { $regex: new RegExp(req.query.jobLocation, 'i') };
+            const [city, province] = req.query.jobLocation.split(',').map((item) => item.trim());
+            searchParams['jobLocation.city'] = { $regex: new RegExp(city, 'i') };
+            searchParams['jobLocation.province'] = { $regex: new RegExp(province, 'i') };
         }
 
         // Check if there is a date posted filter
@@ -189,10 +232,34 @@ module.exports.getAllJobs = async (req, res) => {
             searchParams.jobType = req.query.jobType;
         }
 
+        // Check if there is an industry type filter
+        if (req.query.industryType && ['Fine Dinning', 'Fast Food', 'Cafés', 'Catering', 'Bakeries', 'Pubs and Bars', 'Brewers, Winneries & Distilleries', 'Casual Dinning', 'Banquet Facilities'].includes(req.query.industryType)) {
+            searchParams.industryType = req.query.industryType;
+        }
+
+        // Exclude closed jobs
+        searchParams.isClosed = { $ne: true };
+
         // Check if there is a distance filter
         if (req.query.distance) {
             // Implement distance filtering logic based on your requirements
             // You may need geospatial queries if you have location data in your database
+        }
+
+        // Check if there is a wage estimation filter
+        if (req.query.pay && req.query.payRate) {
+            const wageFilter = getWageFilter(req.query.payRate, req.query.pay);
+            if (wageFilter) {
+                Object.assign(searchParams, wageFilter);
+            }
+        }
+
+        // Check if there is a work availability filter
+        if (req.query.workAvailability) {
+            const workAvailabilityFilter = getWorkAvailabilityFilter(req.query.workAvailability);
+            if (workAvailabilityFilter) {
+                Object.assign(searchParams, workAvailabilityFilter);
+            }
         }
 
         // get total count of jobs with search parameters
@@ -285,31 +352,37 @@ module.exports.searchJobs = async (req, res) => {
     }
 }
 
-// Helper function to generate date filter
-function getDateFilter(datePosted) {
-    const currentDate = new Date();
-    switch (datePosted) {
-        case 'last24hours':
-            return { $gte: new Date(currentDate - 24 * 60 * 60 * 1000) };
-        case 'last7days':
-            return { $gte: new Date(currentDate - 7 * 24 * 60 * 60 * 1000) };
-        case 'last15days':
-            return { $gte: new Date(currentDate - 15 * 24 * 60 * 60 * 1000) };
-        case 'last30days':
-            return { $gte: new Date(currentDate - 30 * 24 * 60 * 60 * 1000) };
-        default:
-            return null;
-    }
-}
+//fetch locations from db (city,province)
+module.exports.fetchLocations = async (req, res) => {
+    try {
+        const uniqueLocations = await JobPost.aggregate([
+            {
+                $match: {
+                    'jobLocation.city': { $exists: true, $ne: null },
+                    'jobLocation.province': { $exists: true, $ne: null },
+                },
+            },
+            {
+                $group: {
+                    _id: {
+                        city: '$jobLocation.city',
+                        province: '$jobLocation.province',
+                    },
+                },
+            },
+            {
+                $project: {
+                    _id: 0,
+                    location: {
+                        $concat: ['$_id.city', ', ', '$_id.province'],
+                    },
+                },
+            },
+        ]);
 
-function handleRegistrationError(error, res) {
-    if (error.name === 'ValidationError') {
-        // Extract validation error messages
-        const validationErrors = Object.values(error.errors).map((error) => error.message);
-
-        res.status(400).json({ error: 'Validation Error', messages: validationErrors });
-    } else {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.json({ locations: uniqueLocations });
+    } catch (error) {
+        console.error('Error fetching unique locations:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
-}
+};

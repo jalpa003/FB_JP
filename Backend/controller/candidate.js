@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 module.exports.completeCandidateProfile = async (req, res) => {
-    const { firstName, lastName, password, headline, phone, showPhoneToEmployers, address, willingToRelocate, desiredJobTitle, desiredJobType, distance, jobTraining, experienceLevel, languageSkills } = req.body;
+    const { firstName, lastName, password, headline, phone, showPhoneToEmployers, address, willingToRelocate, desiredJobTitle, desiredJobType, desiredSchedule, distance, jobTraining, experienceLevel, languageSkills } = req.body;
     const userId = req.user.id;
     try {
         // Check if the user exists
@@ -37,6 +37,7 @@ module.exports.completeCandidateProfile = async (req, res) => {
             candidateProfile.willingToRelocate = willingToRelocate;
             candidateProfile.desiredJobType = desiredJobType;
             candidateProfile.desiredJobTitle = desiredJobTitle;
+            candidateProfile.desiredSchedule = desiredSchedule;
             candidateProfile.distance = distance;
             candidateProfile.jobTraining = jobTraining;
             candidateProfile.experienceLevel = experienceLevel;
@@ -56,6 +57,7 @@ module.exports.completeCandidateProfile = async (req, res) => {
                 willingToRelocate,
                 desiredJobTitle,
                 desiredJobType,
+                desiredSchedule,
                 distance,
                 jobTraining,
                 experienceLevel,

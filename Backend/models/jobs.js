@@ -9,6 +9,10 @@ const jobSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    industryType: {
+        type: String,
+        required: true,
+    },
     jobLocation: {
         streetAddress: {
             type: String,
@@ -51,7 +55,7 @@ const jobSchema = new mongoose.Schema({
             type: Boolean,
             default: false
         },
-        barTending: {
+        bartending: {
             type: Boolean,
             default: false
         },
@@ -106,12 +110,12 @@ const jobSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-    payAmount: {
-        type: String,
-    },
     payRate: {
         type: String,
         enum: ['perHour', 'perYear']
+    },
+    payAmount: {
+        type: String,
     },
     supplementalPay: {
         overtime: {

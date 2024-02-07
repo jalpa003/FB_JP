@@ -1,5 +1,19 @@
 const mongoose = require('mongoose');
 
+const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const times = ['Morning', 'Afternoon', 'Evening', 'Night'];
+
+const desiredScheduleSchema = {};
+days.forEach(day => {
+    desiredScheduleSchema[day] = {};
+    times.forEach(time => {
+        desiredScheduleSchema[day][time] = {
+            type: Boolean,
+            default: false,
+        };
+    });
+});
+
 const candidateProfile = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -19,6 +33,7 @@ const candidateProfile = new mongoose.Schema({
         enum: ['FT', 'PT', 'Temp', 'Apprentice'],
         trim: true,
     },
+    desiredSchedule: desiredScheduleSchema,
     phone: {
         type: String,
         required: [true, 'Phone number is required'],
@@ -66,7 +81,7 @@ const candidateProfile = new mongoose.Schema({
             type: Boolean,
             default: false
         },
-        barTending: {
+        bartending: {
             type: Boolean,
             default: false
         },
