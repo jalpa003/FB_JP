@@ -233,7 +233,7 @@ module.exports.getAllJobs = async (req, res) => {
         }
 
         // Check if there is an industry type filter
-        if (req.query.industryType && ['Fine Dinning', 'Fast Food', 'Cafés', 'Catering', 'Bakeries', 'Pubs and Bars', 'Brewers, Winneries & Distilleries', 'Casual Dinning', 'Banquet Facilities'].includes(req.query.industryType)) {
+        if (req.query.industryType && ['Fine Dining', 'Fast Food', 'Cafés', 'Catering', 'Bakeries', 'Pubs and Bars', 'Brewers, Winneries & Distilleries', 'Casual Dining', 'Banquet Facilities'].includes(req.query.industryType)) {
             searchParams.industryType = req.query.industryType;
         }
 

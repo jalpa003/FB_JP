@@ -182,14 +182,14 @@ function EmployerProfile() {
                                 SelectProps={{ native: true }}
                             >
                                 <option value="">Select</option>
-                                <option value="Fine Dinning">Fine Dinning</option>
+                                <option value="Fine Dining">Fine Dining</option>
                                 <option value="Fast Food">Fast Food</option>
                                 <option value="Cafés">Cafés</option>
                                 <option value="Catering">Catering</option>
                                 <option value="Bakeries">Bakeries</option>
                                 <option value="Pubs and Bars">Pubs and Bars</option>
                                 <option value="Brewers, Winneries & Distilleries">Brewers, Winneries & Distilleries</option>
-                                <option value="Casual Dinning">Casual Dinning</option>
+                                <option value="Casual Dining">Casual Dining</option>
                                 <option value="Banquet Facilities">Banquet Facilities</option>
                             </Field>
                             <Field

@@ -38,6 +38,7 @@ const JobListing = () => {
     const queryParams = new URLSearchParams(location.search);
     const jobTitleParam = queryParams.get('jobTitle') || '';
     const jobLocationParam = queryParams.get('jobLocation') || '';
+    const industryTypeParam = filters.industryType || queryParams.get('industryType') || '';
     const [resumeDialogOpen, setResumeDialogOpen] = useState(false);
     const [resumeDetails, setResumeDetails] = useState(null);
     const [jobIdToApply, setJobIdToApply] = useState(null);
@@ -50,9 +51,18 @@ const JobListing = () => {
             try {
                 const token = localStorage.getItem('token');
                 // Encode the industryType before appending it to the URL
-                const encodedIndustryType = encodeURIComponent(filters.industryType);
-
-                const apiUrl = `${process.env.REACT_APP_API_URL}/all_jobs?limit=10&page=${currentPage}&datePosted=${filters.datePosted}&jobType=${filters.jobType}&jobTitle=${jobTitleParam}&jobLocation=${filters.location}&industryType=${encodedIndustryType}&pay=${filters.pay}&payRate=${filters.payRate}&workAvailability=${filters.workAvailability}`;
+                const encodedIndustryType = encodeURIComponent(industryTypeParam);
+                const apiUrl = `${process.env.REACT_APP_API_URL}/all_jobs?` +
+                    `limit=10&` +
+                    `page=${currentPage}&` +
+                    `datePosted=${filters.datePosted}&` +
+                    `jobType=${filters.jobType}&` +
+                    `jobTitle=${jobTitleParam}&` +
+                    `jobLocation=${filters.location}&` +
+                    `industryType=${encodedIndustryType}&` +
+                    `pay=${filters.pay}&` +
+                    `payRate=${filters.payRate}&` +
+                    `workAvailability=${filters.workAvailability}`;
                 const response = await axios.get(apiUrl, {
                     headers: { 'Authorization': `${token}` },
                 });
@@ -69,7 +79,7 @@ const JobListing = () => {
             }
         };
         fetchJobs();
-    }, [currentPage, filters, jobTitleParam, jobLocationParam, location.search]);
+    }, [currentPage, filters, jobTitleParam, jobLocationParam, industryTypeParam, location.search]);
 
     const handlePageChange = (event, value) => {
         setCurrentPage(value);

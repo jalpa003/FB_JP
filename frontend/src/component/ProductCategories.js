@@ -81,17 +81,17 @@ const images = [
     },
     {
         url: 'https://images.unsplash.com/photo-1528907061761-f2aa74665321?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-        title: 'Pubs & Bars',
+        title: 'Pubs and Bars',
         width: '28%',
     },
     {
         url: 'https://images.unsplash.com/photo-1659459007630-581ef026404f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-        title: 'Breweries, Wineries & Distilleries',
+        title: 'Brewers, Winneries & Distilleries',
         width: '25%',
     },
     {
         url: 'https://images.unsplash.com/photo-1592861956120-e524fc739696?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-        title: 'Casual Dinning',
+        title: 'Casual Dining',
         width: '40%',
     },
     {
@@ -100,6 +100,12 @@ const images = [
         width: '35%',
     },
 ];
+
+const handleImageClick = (industryType) => {
+    const encodedIndustryType = encodeURIComponent(industryType);
+    const url = `/all-jobs?industryType=${encodedIndustryType}`;
+    window.location.href = url;
+};
 
 export default function ProductCategories() {
     return (
@@ -114,6 +120,7 @@ export default function ProductCategories() {
                         style={{
                             width: image.width,
                         }}
+                        onClick={() => handleImageClick(image.title)}
                     >
                         <Box
                             sx={{

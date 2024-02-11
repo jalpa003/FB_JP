@@ -14,7 +14,7 @@ const employerProfileSchema = new mongoose.Schema({
     numberOfEmployees: String,
     fAndBIndustry: {
         type: String,
-        enum: ['Fine Dinning', 'Fast Food', 'Cafés', 'Catering', 'Bakeries', 'Pubs and Bars', 'Brewers, Winneries & Distilleries', 'Casual Dinning', 'Banquet Facilities'],
+        enum: ['Fine Dining', 'Fast Food', 'Cafés', 'Catering', 'Bakeries', 'Pubs and Bars', 'Brewers, Winneries & Distilleries', 'Casual Dining', 'Banquet Facilities'],
         required: true
     },
     companyDescription: String,

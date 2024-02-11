@@ -167,14 +167,14 @@ const FilterBar = ({ onFilterChange }) => {
                     }}
                 >
                     <MenuItem value="" disabled>Select</MenuItem>
-                    <MenuItem value="Fine Dinning">Fine Dinning</MenuItem>
+                    <MenuItem value="Fine Dining">Fine Dining</MenuItem>
                     <MenuItem value="Fast Food">Fast Food</MenuItem>
                     <MenuItem value="Cafés">Cafés</MenuItem>
                     <MenuItem value="Catering">Catering</MenuItem>
                     <MenuItem value="Bakeries">Bakeries</MenuItem>
                     <MenuItem value="Pubs and Bars">Pubs and Bars</MenuItem>
                     <MenuItem value="Brewers, Winneries & Distilleries">Brewers, Winneries & Distilleries</MenuItem>
-                    <MenuItem value="Casual Dinning">Casual Dinning</MenuItem>
+                    <MenuItem value="Casual Dining">Casual Dining</MenuItem>
                     <MenuItem value="Banquet Facilities">Banquet Facilities</MenuItem>
                 </Select>
             </FormControl>
