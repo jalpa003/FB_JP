@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Field, Form, FormSpy } from 'react-final-form';
 import Box from '@mui/material/Box';
+import { motion } from 'framer-motion';
 import Typography from '../component/Typography';
 import AppAppBar from '../component/AppAppBar';
 import AppForm from '../component/AppForm';
@@ -46,18 +47,36 @@ function ForgotPassword() {
         }
     };
 
+    //  variants for animations
+    const containerVariants = {
+        hidden: { opacity: 0, y: 50 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, x: -50 },
+        visible: { opacity: 1, x: 0, transition: { duration: 0.5 } },
+    };
+
+
     return (
         <React.Fragment>
             <AppAppBar />
             <AppForm>
                 <React.Fragment>
-                    <Typography variant="h4" gutterBottom marked="center" align="center">
-                        Forgot your password?
-                    </Typography>
-                    <Typography variant="body2" align="center">
-                        {"Enter your email address below and we'll " +
-                            'send you a link to reset your password.'}
-                    </Typography>
+                    <motion.div
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="visible"
+                    >
+                        <Typography variant="h4" gutterBottom marked="center" align="center">
+                            Forgot your password?
+                        </Typography>
+                        <Typography variant="body2" align="center">
+                            {"Enter your email address below and we'll " +
+                                'send you a link to reset your password.'}
+                        </Typography>
+                    </motion.div>
                 </React.Fragment>
                 <Form
                     onSubmit={handleSubmit}
@@ -66,41 +85,53 @@ function ForgotPassword() {
                 >
                     {({ handleSubmit: handleSubmit2, submitting }) => (
                         <Box component="form" onSubmit={handleSubmit2} noValidate sx={{ mt: 6 }}>
-                            <Field
-                                autoFocus
-                                autoComplete="email"
-                                component={RFTextField}
-                                disabled={submitting || sent}
-                                fullWidth
-                                label="Email"
-                                margin="normal"
-                                name="email"
-                                required
-                                size="large"
-                            />
-                            <FormSpy subscription={{ submitError: true }}>
-                                {({ submitError }) =>
-                                    submitError ? (
-                                        <FormFeedback error sx={{ mt: 2 }}>
-                                            {submitError}
-                                        </FormFeedback>
-                                    ) : null
-                                }
-                            </FormSpy>
-                            <FormButton
-                                sx={{ mt: 3, mb: 2 }}
-                                disabled={submitting || sent}
-                                size="large"
-                                color="secondary"
-                                fullWidth
+                            <motion.div
+                                variants={containerVariants}
+                                initial="hidden"
+                                animate="visible"
                             >
-                                {submitting ? 'In progress…' : sent ? 'Success!' : 'Send reset link'}
-                            </FormButton>
+                                <Field
+                                    autoFocus
+                                    autoComplete="email"
+                                    component={RFTextField}
+                                    disabled={submitting || sent}
+                                    fullWidth
+                                    label="Email"
+                                    margin="normal"
+                                    name="email"
+                                    required
+                                    size="large"
+                                />
+                            </motion.div>
+                            <motion.div
+                                variants={itemVariants}
+                                initial="hidden"
+                                animate="visible"
+                            >
+                                <FormSpy subscription={{ submitError: true }}>
+                                    {({ submitError }) =>
+                                        submitError ? (
+                                            <FormFeedback error sx={{ mt: 2 }}>
+                                                {submitError}
+                                            </FormFeedback>
+                                        ) : null
+                                    }
+                                </FormSpy>
+                                <FormButton
+                                    sx={{ mt: 3, mb: 2 }}
+                                    disabled={submitting || sent}
+                                    size="large"
+                                    color="secondary"
+                                    fullWidth
+                                >
+                                    {submitting ? 'In progress…' : sent ? 'Success!' : 'Send reset link'}
+                                </FormButton>
+                            </motion.div>
                         </Box>
                     )}
                 </Form>
             </AppForm>
-             <ToastContainer />
+            <ToastContainer />
         </React.Fragment>
     );
 }

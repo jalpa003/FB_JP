@@ -3,8 +3,17 @@ import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import AppBar from './AppBar';
 import Toolbar from './Toolbar';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Typography from './Typography';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode as jwt_decode } from 'jwt-decode';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import WorkIcon from '@mui/icons-material/Work';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 
 const rightLink = {
     fontSize: 16,
@@ -15,9 +24,18 @@ const rightLink = {
 
 function AppAppBar() {
     const navigate = useNavigate();
+    const [anchorEl, setAnchorEl] = React.useState(null);
 
     // Check if the user is logged in
     const isLoggedIn = !!localStorage.getItem('token');
+
+    const handleMenuClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
 
     let decodedToken;
 
@@ -76,57 +94,57 @@ function AppAppBar() {
         <div>
             <AppBar position="fixed">
                 <Toolbar sx={{ justifyContent: 'space-between' }}>
-                    <Box sx={{ flex: 1 }} />
-                    <Link
-                        variant="h6"
-                        underline="none"
-                        color="inherit"
-                        href="/"
-                        sx={{ fontSize: 20 }}
-                    >
-                        {'Serve Success'}
-                    </Link>
-                    <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+                    <Box sx={{ flexGrow: 1 }}>
+                        <Typography variant="h6" component="div" sx={{ flexGrow: 1, textAlign: 'center' }}>
+                            <Link
+                                underline="none"
+                                color="ButtonShadow"
+                                href="/"
+                                sx={{
+                                    fontSize: 20,
+                                    alignItems: 'center'
+                                }}
+                            >
+                                {'Serve Success'}
+                            </Link>
+                        </Typography>
+                    </Box>
+                    <Box>
                         {isLoggedIn ? (
                             <>
-                                <Link
+                                <IconButton
+                                    size="large"
+                                    edge="end"
                                     color="inherit"
-                                    variant="h6"
-                                    underline="none"
-                                    onClick={handleProfileClick}
-                                    sx={rightLink}
+                                    aria-label="menu"
+                                    onClick={handleMenuClick}
+                                    sx={{ ml: 2 }}
                                 >
-                                    {'Profile'}
-                                </Link>
-                                <Link
-                                    color="inherit"
-                                    variant="h6"
-                                    underline="none"
-                                    onClick={handleJobListingClick}
-                                    sx={{ ...rightLink }}
+                                    <MenuIcon />
+                                </IconButton>
+                                <Menu
+                                    anchorEl={anchorEl}
+                                    open={Boolean(anchorEl)}
+                                    onClose={handleMenuClose}
                                 >
-                                    {decodedToken.role === 'candidate' ? 'Find Jobs' : 'Job Listing'}
-                                </Link>
-                                {decodedToken.role === 'employer' && (
-                                    <Link
-                                        color="inherit"
-                                        variant="h6"
-                                        underline="none"
-                                        onClick={handlePricingClick}
-                                        sx={{ ...rightLink }}
-                                    >
-                                        {'Subscriptions'}
-                                    </Link>
-                                )}
-                                <Link
-                                    color="inherit"
-                                    variant="h6"
-                                    underline="none"
-                                    onClick={handleLogout}
-                                    sx={{ ...rightLink, color: 'secondary.main' }}
-                                >
-                                    {'Logout'}
-                                </Link>
+                                    <MenuItem onClick={handleProfileClick}>
+                                        <AccountCircleIcon sx={{ mr: 1 }} /> Profile
+                                    </MenuItem>
+                                    <MenuItem onClick={handleJobListingClick}>
+                                        <WorkIcon sx={{ mr: 1 }} />
+                                        {decodedToken.role === 'candidate' ? 'Find Jobs' : 'Job Listing'}
+                                    </MenuItem>
+                                    {decodedToken.role === 'employer' && (
+                                        <MenuItem onClick={handlePricingClick}>
+                                            <MonetizationOnIcon sx={{ mr: 1 }} />
+                                            Subscriptions
+                                        </MenuItem>
+                                    )}
+                                    <MenuItem onClick={handleLogout}>
+                                        <ExitToAppIcon sx={{ mr: 1 }} />
+                                        Logout
+                                    </MenuItem>
+                                </Menu>
                             </>
                         ) : (
                             <>
