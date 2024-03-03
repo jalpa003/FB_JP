@@ -1,24 +1,25 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import Paper from '@mui/material/Paper';
+import Card from '@mui/material/Card';
+import CardMedia from '@mui/material/CardMedia';
+import Grid from '@mui/material/Grid';
+import Container from '@mui/material/Container';
 import AppAppBar from '../component/AppAppBar';
 import withRoot from '../withRoot';
+import { motion } from 'framer-motion';
+
+// Styled card with animation
+const AnimatedCard = motion(Card);
 
 const SignUpOptions = () => {
     const navigate = useNavigate();
-    const [selectedOption, setSelectedOption] = useState('');
 
     const handleOptionClick = (option) => {
-        setSelectedOption(option);
-    };
-
-    const handleSignUp = () => {
-        if (selectedOption === 'employer') {
+        if (option === 'employer') {
             navigate('/sign-up/employer');
-        } else if (selectedOption === 'candidate') {
+        } else if (option === 'candidate') {
             navigate('/sign-up/candidate');
         }
     };
@@ -28,70 +29,89 @@ const SignUpOptions = () => {
             <AppAppBar />
             <Box
                 sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-around',
-                    minHeight: '90.8vh',
-                    backgroundImage: 'url("https://shorturl.at/mpBDO")',
+                    backgroundImage: 'url("https://images.unsplash.com/photo-1447078806655-40579c2520d6?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")',
                     backgroundSize: 'cover',
-                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    minHeight: '90.8vh',
+                    py: 8,
                 }}
             >
-                <Box
-                    sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                        borderRadius: '8px',
-                        padding: '2rem',
-                        boxShadow: '0 0 20px rgba(0, 0, 0, 0.1)',
-                        width: '40%',
-                        minWidth: '300px',
-                    }}
-                >
-                    <Typography variant="h4" gutterBottom marked="center" align="center">
-                        Choose Your Role
-                    </Typography>
-                    <Paper
-                        sx={{
-                            padding: 3,
-                            backgroundColor: selectedOption === 'employer' ? '#c7cdd4' : '#fff',
-                            cursor: 'pointer',
-                            transition: 'background-color 0.5s',
-                            marginBottom: '1rem',
-                        }}
-                        onClick={() => handleOptionClick('employer')}
-                    >
-                        <Typography variant="h6" align="center" color="primary.main">
-                            Register as Employer
-                        </Typography>
-                    </Paper>
-                    <Paper
-                        sx={{
-                            padding: 3,
-                            backgroundColor: selectedOption === 'candidate' ? '#fae1f7' : '#fff',
-                            cursor: 'pointer',
-                            transition: 'background-color 0.3s',
-                        }}
-                        onClick={() => handleOptionClick('candidate')}
-                    >
-                        <Typography variant="h6" align="center" color="secondary.main">
-                            Register as Candidate
-                        </Typography>
-                    </Paper>
-                    {selectedOption && (
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            size="large"
-                            sx={{ mt: 2 }}
-                            onClick={handleSignUp}
-                        >
-                            Sign Up
-                        </Button>
-                    )}
-                </Box>
+                <Container maxWidth="lg">
+                    <Grid container spacing={4} justifyContent="center">
+                        <Grid item xs={12} md={6}>
+                            <Box sx={{ cursor: 'pointer' }} onClick={() => handleOptionClick('employer')}>
+                                <AnimatedCard
+                                    sx={{
+                                        height: '100%',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        borderRadius: 2,
+                                        boxShadow: '0 0 20px rgba(0, 0, 0, 0.1)',
+                                        transition: 'transform 0.3s',
+                                        '&:hover': {
+                                            transform: 'scale(1.05)',
+                                        },
+                                    }}
+                                >
+                                    <CardMedia
+                                        component="img"
+                                        height="300"
+                                        image="/images/employer (1).jpg"
+                                        alt="Employer"
+                                        sx={{ objectFit: 'contain' }}
+                                    />
+                                    <Box p={4}>
+                                        <Typography variant="h6" align="center" gutterBottom>
+                                            Employer
+                                        </Typography>
+                                        <Typography variant="body1" align="center">
+                                            Ready to find the perfect match for your team?
+                                        </Typography>
+                                        <Typography variant="body1" align="center">
+                                            Sign up here as an employer to discover top talent.
+                                        </Typography>
+                                    </Box>
+                                </AnimatedCard>
+                            </Box>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <Box sx={{ cursor: 'pointer' }} onClick={() => handleOptionClick('candidate')}>
+                                <AnimatedCard
+                                    sx={{
+                                        height: '100%',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        borderRadius: 2,
+                                        boxShadow: '0 0 20px rgba(0, 0, 0, 0.1)',
+                                        transition: 'transform 0.3s',
+                                        '&:hover': {
+                                            transform: 'scale(1.05)',
+                                        },
+                                    }}
+                                >
+                                    <CardMedia
+                                        component="img"
+                                        height="300"
+                                        image="/images/candidate.jpg"
+                                        alt="Candidate"
+                                        sx={{ objectFit: 'contain' }}
+                                    />
+                                    <Box p={4}>
+                                        <Typography variant="h6" align="center" gutterBottom>
+                                            Candidate
+                                        </Typography>
+                                        <Typography variant="body1" align="center">
+                                            Ready to take the next step in your career?
+                                        </Typography>
+                                        <Typography variant="body1" align="center">
+                                            Sign up here as a candidate to unlock exciting opportunities.
+                                        </Typography>
+                                    </Box>
+                                </AnimatedCard>
+                            </Box>
+                        </Grid>
+                    </Grid>
+                </Container>
             </Box>
         </React.Fragment>
     );

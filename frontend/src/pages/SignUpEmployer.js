@@ -4,8 +4,8 @@ import Grid from '@mui/material/Grid';
 import Link from '@mui/material/Link';
 import { Field, Form, FormSpy } from 'react-final-form';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import Typography from '../component/Typography';
-// import AppFooter from './AppFooter';
 import AppAppBar from '../component/AppAppBar';
 import AppForm from '../component/AppForm';
 import { email, required } from '../form/validation';
@@ -62,20 +62,36 @@ function EmployerSignUp() {
         }
     };
 
+    //  variants for animations
+    const containerVariants = {
+        hidden: { opacity: 0, y: 50 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, x: -50 },
+        visible: { opacity: 1, x: 0, transition: { duration: 0.5 } },
+    };
+
     return (
         <React.Fragment>
             <AppAppBar />
             <AppForm>
                 <React.Fragment>
-                    <Typography variant="h4" gutterBottom marked="center" align="center">
-                        Sign Up as Employer
-                    </Typography>
-
-                    <Typography variant="body2" align="center">
-                        <Link href="/sign-in/employer" underline="always">
-                            Already have an account? Sign in as an employer.
-                        </Link>
-                    </Typography>
+                    <motion.div
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="visible"
+                    >
+                        <Typography variant="h4" gutterBottom marked="center" align="center">
+                            Sign Up as Employer
+                        </Typography>
+                        <Typography variant="body2" align="center">
+                            <Link href="/sign-in/employer" underline="always">
+                                Already have an account? Sign in as an employer.
+                            </Link>
+                        </Typography>
+                    </motion.div>
                 </React.Fragment>
                 <Form
                     onSubmit={handleSubmit}
@@ -84,75 +100,92 @@ function EmployerSignUp() {
                 >
                     {({ handleSubmit: handleSubmit2, submitting }) => (
                         <Box component="form" onSubmit={handleSubmit2} noValidate sx={{ mt: 6 }}>
-                            <Grid container spacing={2}>
-                                <Grid item xs={12} sm={6}>
-                                    <Field
-                                        autoFocus
-                                        component={RFTextField}
-                                        disabled={submitting || sent}
-                                        autoComplete="given-name"
-                                        fullWidth
-                                        label="First name"
-                                        name="firstName"
-                                        required
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <Field
-                                        component={RFTextField}
-                                        disabled={submitting || sent}
-                                        autoComplete="family-name"
-                                        fullWidth
-                                        label="Last name"
-                                        name="lastName"
-                                        required
-                                    />
-                                </Grid>
-                            </Grid>
-                            <Field
-                                autoComplete="email"
-                                component={RFTextField}
-                                disabled={submitting || sent}
-                                fullWidth
-                                label="Email"
-                                margin="normal"
-                                name="email"
-                                required
-                            />
-                            <Field
-                                fullWidth
-                                component={RFTextField}
-                                disabled={submitting || sent}
-                                required
-                                name="password"
-                                autoComplete="new-password"
-                                label="Password"
-                                type="password"
-                                margin="normal"
-                            />
-                            <FormSpy subscription={{ submitError: true }}>
-                                {({ submitError }) =>
-                                    submitError ? (
-                                        <FormFeedback error sx={{ mt: 2 }}>
-                                            {submitError}
-                                        </FormFeedback>
-                                    ) : null
-                                }
-                            </FormSpy>
-                            <FormButton
-                                sx={{ mt: 3, mb: 2 }}
-                                disabled={submitting || sent}
-                                color="secondary"
-                                fullWidth
+                            <motion.div
+                                variants={containerVariants}
+                                initial="hidden"
+                                animate="visible"
                             >
-                                {submitting ? 'In progress…' : sent ? 'Success!' : 'Sign Up'}
-                            </FormButton>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12} sm={6}>
+                                        <Field
+                                            autoFocus
+                                            component={RFTextField}
+                                            disabled={submitting || sent}
+                                            autoComplete="given-name"
+                                            fullWidth
+                                            label="First name"
+                                            name="firstName"
+                                            required
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <Field
+                                            component={RFTextField}
+                                            disabled={submitting || sent}
+                                            autoComplete="family-name"
+                                            fullWidth
+                                            label="Last name"
+                                            name="lastName"
+                                            required
+                                        />
+                                    </Grid>
+                                </Grid>
+                            </motion.div>
+                            <motion.div
+                                variants={containerVariants}
+                                initial="hidden"
+                                animate="visible"
+                            >
+                                <Field
+                                    autoComplete="email"
+                                    component={RFTextField}
+                                    disabled={submitting || sent}
+                                    fullWidth
+                                    label="Email"
+                                    margin="normal"
+                                    name="email"
+                                    required
+                                />
+                                <Field
+                                    fullWidth
+                                    component={RFTextField}
+                                    disabled={submitting || sent}
+                                    required
+                                    name="password"
+                                    autoComplete="new-password"
+                                    label="Password"
+                                    type="password"
+                                    margin="normal"
+                                />
+                            </motion.div>
+                            <motion.div
+                                variants={itemVariants}
+                                initial="hidden"
+                                animate="visible"
+                            >
+                                <FormSpy subscription={{ submitError: true }}>
+                                    {({ submitError }) =>
+                                        submitError ? (
+                                            <FormFeedback error sx={{ mt: 2 }}>
+                                                {submitError}
+                                            </FormFeedback>
+                                        ) : null
+                                    }
+                                </FormSpy>
+                                <FormButton
+                                    sx={{ mt: 3, mb: 2 }}
+                                    disabled={submitting || sent}
+                                    color="secondary"
+                                    fullWidth
+                                >
+                                    {submitting ? 'In progress…' : sent ? 'Success!' : 'Sign Up'}
+                                </FormButton>
+                            </motion.div>
                         </Box>
                     )}
                 </Form>
             </AppForm>
             <ToastContainer />
-            {/* <AppFooter /> */}
         </React.Fragment >
     );
 }
