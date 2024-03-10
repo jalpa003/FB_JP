@@ -18,6 +18,7 @@ import SupplementalPayCheckboxGroup from '../component/SupplementalPayCheckboxGr
 import BenefitsOfferedSection from '../component/BenefitsOfferedCheckbox';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import AdditionalQuestions from '../component/AdditionalQuestions';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -38,35 +39,48 @@ const JobPostingForm = () => {
     const navigate = useNavigate();
     const [sent, setSent] = useState(false);
     const [showWageRate, setShowWageRate] = useState(true);
-
-    const validate = (values) => {
-        const errors = {};
-        // Check for required fields
-        if (!values.jobTitle) {
-            errors.jobTitle = 'Job Title is required';
-        }
-
-        if (!values.jobDescription) {
-            errors.jobDescription = 'Job Description is required';
-        }
-        if (!values.jobType) {
-            errors.jobType = 'Job Type is required';
-        }
-        if (!values.jobLocation) {
-            errors.jobLocation = 'Job Location is required';
-        }
-
-        return errors;
-    };
+    const [consentToAddQuestions, setConsentToAddQuestions] = useState(false);
+    const [selectedQuestions, setSelectedQuestions] = useState([]);
 
     const handleSubmit = async (values) => {
         try {
+            // Check for required fields
+            if (!values.jobTitle || !values.jobDescription || !values.jobType || !values.jobLocation) {
+                toast.error('Please fill in all required fields before submitting the form.');
+                return;
+            }
+
+            // Check additional validation
+            if (values.hoursPerWeek !== undefined && values.hoursPerWeek < 0) {
+                toast.error('Hours per week must be a positive number');
+                return;
+            }
+
+            if (values.showWageRate) {
+                if (!values.payAmount) {
+                    toast.error('Pay Amount is required');
+                    return;
+                }
+                if (!values.payRate) {
+                    toast.error('Pay Rate is required');
+                    return;
+                }
+            }
+
             // Retrieve the token from localStorage
             const token = localStorage.getItem('token');
 
+            // Prepare payload including selected questions
+            const payload = {
+                ...values,
+                showWageRate,
+                selectedQuestions,
+            };
+
             // Make API request
-            const response = await axios.post(`${process.env.REACT_APP_API_URL}/create_job`, { ...values, showWageRate },
-                { headers: { 'Authorization': `${token}` } });
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/create_job`, payload, {
+                headers: { 'Authorization': `${token}` },
+            });
 
             if (response.status === 201) {
                 toast.success(response.data.message)
@@ -85,6 +99,7 @@ const JobPostingForm = () => {
             toast.error(errorData.messages[0])
         }
     };
+
     return (
         <React.Fragment>
             <AppAppBar />
@@ -110,7 +125,6 @@ const JobPostingForm = () => {
                         <Form
                             onSubmit={handleSubmit}
                             subscription={{ submitting: true }}
-                            validate={validate}
                         >
                             {({ handleSubmit: handleSubmit2, submitting }) => (
                                 <Box component="form" onSubmit={handleSubmit2} noValidate>
@@ -198,7 +212,7 @@ const JobPostingForm = () => {
                                                 name="hoursPerWeek"
                                                 fullWidth
                                                 type="number"
-                                                validate={(value) => (value >= 0 ? undefined : 'Please enter a positive number')}
+                                                InputProps={{ inputProps: { min: 0 } }}
                                             />
                                         </Grid>
                                     </Grid>
@@ -285,6 +299,7 @@ const JobPostingForm = () => {
                                                 name="numberOfPositions"
                                                 label="Number of Positions"
                                                 type="number"
+                                                InputProps={{ inputProps: { min: 1 } }}
                                                 fullWidth
                                             >
                                             </Field>
@@ -326,6 +341,9 @@ const JobPostingForm = () => {
                                                         label="Pay Amount"
                                                         name="payAmount"
                                                         fullWidth
+                                                        type="number"
+                                                        InputProps={{ inputProps: { min: 0 } }}
+                                                        required
                                                     />
                                                 </Grid>
                                                 <Grid item xs={12} sm={4}>
@@ -337,6 +355,7 @@ const JobPostingForm = () => {
                                                         fullWidth
                                                         select
                                                         SelectProps={{ native: true }}
+                                                        required
                                                     >
                                                         <option value="">Select</option>
                                                         <option value="perHour">Per Hour</option>
@@ -359,7 +378,7 @@ const JobPostingForm = () => {
                                     </Typography>
                                     <BenefitsOfferedSection />
                                     {/* Communication Settings */}
-                                    <Typography variant="h5" gutterBottom>
+                                    {/* <Typography variant="h5" gutterBottom>
                                         Communication Settings
                                     </Typography>
                                     <Grid container spacing={2}>
@@ -379,7 +398,13 @@ const JobPostingForm = () => {
                                                 name="communicationPhone"
                                             />
                                         </Grid>
-                                    </Grid>
+                                    </Grid> */}
+                                    <AdditionalQuestions
+                                        consentToAddQuestions={consentToAddQuestions}
+                                        setConsentToAddQuestions={setConsentToAddQuestions}
+                                        setSelectedQuestions={setSelectedQuestions}
+                                    />
+
                                     <FormSpy subscription={{ submitError: true }}>
                                         {({ submitError }) =>
                                             submitError ? (

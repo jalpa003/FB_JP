@@ -18,6 +18,7 @@ import JobListing from './pages/JobListing';
 import EditJob from './pages/EditJob';
 import AllJobs from './pages/AllJobs';
 import Pricing from './pages/Pricing';
+import ProfileSearchList from './pages/ProfileSearchList';
 
 const App = () => {
   return (
@@ -41,6 +42,7 @@ const App = () => {
           <Route path="/edit-job/:jobId" element={<EditJob />} />
           <Route path="/all-jobs" element={<AllJobs />} />
           <Route path="/pricing" element={<Pricing />} />
+          <Route path="/premium search" element={<ProfileSearchList />} />
         </Routes>
       </BrowserRouter>
     </>

@@ -20,6 +20,7 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import AdditionalQuestions from '../component/AdditionalQuestions';
 
 const provinces = [
     'Alberta',
@@ -40,6 +41,8 @@ const EditJobPostingForm = () => {
     const [sent, setSent] = useState(false);
     const [showWageRate, setShowWageRate] = useState(true);
     const [initialValues, setInitialValues] = useState({});
+    const [consentToAddQuestions, setConsentToAddQuestions] = useState(false);
+    const [selectedQuestions, setSelectedQuestions] = useState([]);
 
     useEffect(() => {
         // Fetch existing job details when the component mounts
@@ -55,6 +58,12 @@ const EditJobPostingForm = () => {
                 if (response.status === 200) {
                     setShowWageRate(response.data.job.showWageRate || false);
                     setInitialValues(response.data.job);
+
+                    // Check if selected questions exist and update the switch state accordingly
+                    if (response.data.job.selectedQuestions && response.data.job.selectedQuestions.length > 0) {
+                        setConsentToAddQuestions(true);
+                        setSelectedQuestions(response.data.job.selectedQuestions);
+                    }
                 }
             } catch (error) {
                 console.error(error);
@@ -88,6 +97,15 @@ const EditJobPostingForm = () => {
             errors.hoursPerWeek = 'Hours per week must be a positive number';
         }
 
+        if (values.showWageRate) {
+            if (!values.payAmount) {
+                errors.payAmount = 'Pay Amount is required';
+            }
+            if (!values.payRate) {
+                errors.payRate = 'Pay Rate is required';
+            }
+        }
+
         return errors;
     };
 
@@ -96,10 +114,16 @@ const EditJobPostingForm = () => {
             // Retrieve the token from localStorage
             const token = localStorage.getItem('token');
 
+            // Prepare payload including selected questions
+            const payload = {
+                ...values,
+                showWageRate,
+                selectedQuestions,
+            };
+
             // Make API request to update the job posting
             const response = await axios.put(
-                `${process.env.REACT_APP_API_URL}/update_job/${jobId}`,
-                { ...values, showWageRate },
+                `${process.env.REACT_APP_API_URL}/update_job/${jobId}`, payload,
                 { headers: { Authorization: `${token}` } }
             );
 
@@ -237,7 +261,7 @@ const EditJobPostingForm = () => {
                                                 name="hoursPerWeek"
                                                 fullWidth
                                                 type="number"
-                                                validate={(value) => (value && parseInt(value, 10) < 0 ? 'Please enter a positive number' : undefined)}
+                                                InputProps={{ inputProps: { min: 0 } }}
                                             />
                                         </Grid>
                                     </Grid>
@@ -324,6 +348,7 @@ const EditJobPostingForm = () => {
                                                 name="numberOfPositions"
                                                 label="Number of Positions"
                                                 type="number"
+                                                InputProps={{ inputProps: { min: 0 } }}
                                                 fullWidth
                                             >
                                             </Field>
@@ -365,6 +390,9 @@ const EditJobPostingForm = () => {
                                                         label="Pay Amount"
                                                         name="payAmount"
                                                         fullWidth
+                                                        type="number"
+                                                        InputProps={{ inputProps: { min: 0 } }}
+                                                        required
                                                     />
                                                 </Grid>
                                                 <Grid item xs={12} sm={4}>
@@ -376,6 +404,7 @@ const EditJobPostingForm = () => {
                                                         fullWidth
                                                         select
                                                         SelectProps={{ native: true }}
+                                                        required
                                                     >
                                                         <option value="">Select</option>
                                                         <option value="perHour">Per Hour</option>
@@ -398,7 +427,7 @@ const EditJobPostingForm = () => {
                                     </Typography>
                                     <BenefitsOfferedSection />
                                     {/* Communication Settings */}
-                                    <Typography variant="h5" gutterBottom>
+                                    {/* <Typography variant="h5" gutterBottom>
                                         Communication Settings
                                     </Typography>
                                     <Grid container spacing={2}>
@@ -418,7 +447,15 @@ const EditJobPostingForm = () => {
                                                 name="communicationPhone"
                                             />
                                         </Grid>
-                                    </Grid>
+                                    </Grid> */}
+                                    <AdditionalQuestions
+                                        jobId={jobId}
+                                        consentToAddQuestions={consentToAddQuestions}
+                                        setConsentToAddQuestions={setConsentToAddQuestions}
+                                        setSelectedQuestions={setSelectedQuestions}
+                                        selectedQuestions={selectedQuestions}
+                                    />
+
                                     <FormSpy subscription={{ submitError: true }}>
                                         {({ submitError }) =>
                                             submitError ? (

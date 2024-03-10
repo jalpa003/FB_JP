@@ -14,6 +14,7 @@ const JobRequirementsCheckboxGroup = () => {
         'bartending',
         'barista',
         'fineDining',
+        'POSExperience'
     ];
 
     return (
@@ -29,7 +30,7 @@ const JobRequirementsCheckboxGroup = () => {
                                 render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
                             />
                         }
-                        label={checkbox
+                        label={checkbox === 'POSExperience' ? 'POS Experience' : checkbox
                             .split(/(?=[A-Z])/)
                             .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
                             .join(' ')}

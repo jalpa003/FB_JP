@@ -14,6 +14,7 @@ import Divider from '@mui/material/Divider';
 import AppAppBar from '../component/AppAppBar';
 import FilterBar from '../component/FilterBar';
 import axios from 'axios';
+import CircularProgress from '@mui/material/CircularProgress';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import JobDetailsDialog from '../component/JobDetailsDialog';
@@ -42,13 +43,14 @@ const JobListing = () => {
     const [resumeDialogOpen, setResumeDialogOpen] = useState(false);
     const [resumeDetails, setResumeDetails] = useState(null);
     const [jobIdToApply, setJobIdToApply] = useState(null);
-
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
         // Fetch the list of jobs based on pagination, filters, jobTitle, and jobLocation
         const fetchJobs = async () => {
             try {
+                setLoading(true);
                 const token = localStorage.getItem('token');
                 // Encode the industryType before appending it to the URL
                 const encodedIndustryType = encodeURIComponent(industryTypeParam);
@@ -76,6 +78,9 @@ const JobListing = () => {
                 setJobs([]);
                 setTotalPages(1);
                 toast.error(errorData.messages)
+            }
+            finally {
+                setLoading(false);
             }
         };
         fetchJobs();
@@ -144,6 +149,8 @@ const JobListing = () => {
         const [selectedResume, setSelectedResume] = useState(null);
         const { resume: existingResume } = resumeDetails || {};
         const [uploadNewResume, setUploadNewResume] = useState(!existingResume);
+        const [loadingQuestions, setLoadingQuestions] = useState(false);
+        const [selectedQuestions, setSelectedQuestions] = useState([]);
 
         const handleResumeChange = (event) => {
             setSelectedResume(event.target.files[0]);
@@ -173,11 +180,19 @@ const JobListing = () => {
                 // Append job ID and upload option to form data
                 formData.append('jobId', jobIdToApply);
                 formData.append('uploadNewResume', uploadNewResume);
+                // Adjusted React code to match schema
+                if (selectedQuestions && selectedQuestions.length > 0) {
+                    const questionsAndAnswers = selectedQuestions.map(question => ({
+                        question: question._id,
+                        response: question.answer,
+                    }));
+                    console.log(questionsAndAnswers);
+                    formData.append('additionalQuestionsResponses', JSON.stringify(questionsAndAnswers));
+                }
 
                 // Make an API call to apply for the job with the selected resume
                 const response = await axios.post(
-                    `${process.env.REACT_APP_API_URL}/apply_job`,
-                    formData,
+                    `${process.env.REACT_APP_API_URL}/apply_job`, formData,
                     { headers: { 'Authorization': `${token}`, 'Content-Type': 'multipart/form-data' } }
                 );
 
@@ -197,22 +212,88 @@ const JobListing = () => {
             }
         };
 
+        // Fetch job details, including selected questions, when "Apply" button is clicked
+        useEffect(() => {
+            const fetchJobDetails = async () => {
+                try {
+                    if (jobIdToApply) {
+                        setLoadingQuestions(true);
+                        const token = localStorage.getItem('token');
+                        const response = await axios.get(`${process.env.REACT_APP_API_URL}/job_details/${jobIdToApply}`, {
+                            headers: { 'Authorization': `${token}` },
+                        });
+
+                        const questionIds = response.data.selectedQuestions || [];
+
+                        // Fetch details for each question ID
+                        const questionsPromises = questionIds.map(async (questionId) => {
+                            const questionResponse = await axios.get(`${process.env.REACT_APP_API_URL}/questions/${questionId}`, {
+                                headers: { 'Authorization': `${token}` },
+                            });
+                            return questionResponse.data;
+                        });
+
+                        // Wait for all questions to be fetched
+                        const questions = await Promise.all(questionsPromises);
+                        setSelectedQuestions(questions);
+                    }
+                } catch (error) {
+                    console.error('Error fetching job details:', error);
+                } finally {
+                    setLoadingQuestions(false);
+                }
+            };
+
+            fetchJobDetails();
+        }, []);
+
+        const handleAnswerChange = (questionId, answer) => {
+            // Update the answer for the given question
+            const updatedQuestions = selectedQuestions.map(question => {
+                if (question._id === questionId) {
+                    return { ...question, answer };
+                }
+                return question;
+            });
+            setSelectedQuestions(updatedQuestions);
+        };
+
         return (
             <Dialog open={resumeDialogOpen} onClose={() => setResumeDialogOpen(false)} maxWidth="sm" fullWidth>
-                <DialogTitle>Your Resume</DialogTitle>
+                <DialogTitle sx={{ backgroundColor: '#f50057', color: '#fff', textAlign: 'center' }}>Your Resume</DialogTitle>
                 <DialogContent>
-                    {existingResume && (
-                        <div>
-                            <Typography variant="h5">Existing Resume Details:</Typography>
-                            <Typography>Name: {existingResume}</Typography>
-                        </div>
+                    <div style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '20px', borderRadius: '5px' }}>
+                        {existingResume && (
+                            <div>
+                                <Typography variant="h5">Submit Profile Resume:</Typography>
+                                <Typography>Name: {existingResume}</Typography>
+                            </div>
+                        )}
+
+                        <Divider sx={{ my: 2 }} />
+
+                        <Typography variant="h5">Upload New Resume:</Typography>
+                        <input type="file" accept=".pdf, .doc, .docx" onChange={handleResumeChange} />
+                    </div>
+                    {/* Display selected questions */}
+                    {loadingQuestions ? (
+                        <CircularProgress />
+                    ) : (
+                        selectedQuestions.length > 0 && (
+                            <div style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '20px', borderRadius: '5px' }}>
+                                <Typography variant="h5">Answer these questions from the employer</Typography>
+                                {selectedQuestions.map((question, index) => (
+                                    <div key={index}>
+                                        <Typography>{question.question}</Typography>
+                                        <div>
+                                            <Button onClick={() => handleAnswerChange(question._id, 'Yes')} variant={question.answer === 'Yes' ? "contained" : "outlined"} color="primary" style={{ marginRight: '10px' }}>Yes</Button>
+                                            <Button onClick={() => handleAnswerChange(question._id, 'No')} variant={question.answer === 'No' ? "contained" : "outlined"} color="secondary">No</Button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )
                     )}
-
-                    <Divider sx={{ my: 2 }} />
-
-                    <Typography variant="h5">Upload New Resume:</Typography>
-
-                    <input type="file" accept=".pdf, .doc, .docx" onChange={handleResumeChange} />
                 </DialogContent>
 
                 <DialogActions>
@@ -245,6 +326,11 @@ const JobListing = () => {
     return (
         <React.Fragment>
             <AppAppBar />
+            {loading && (
+                <Box sx={{ textAlign: 'center', mt: 2 }}>
+                    <CircularProgress />
+                </Box>
+            )}
             <Container maxWidth="md">
                 <Typography variant="h4" gutterBottom marked="center" align="center" sx={{ mt: 3, mb: 2 }}>
                     {/* Job Listings */}
@@ -255,19 +341,24 @@ const JobListing = () => {
                     {/* Job listings */}
                     {jobs.map((job) => (
                         <Paper key={job._id} elevation={3} sx={{ p: 3, mb: 3 }}>
-                            <Typography variant="h6" mb={2}>
-                                {job.jobTitle}
+                            <Typography variant="h6" mb={2} sx={{ fontFamily: 'cursive', fontSize: '20px', color: '#FF3366', fontWeight: 'bold' }}>
+                                <strong>{job.jobTitle}</strong>
                             </Typography>
-                            <Typography>Description: {job.jobDescription}</Typography>
                             <Typography>
-                                Location: {job.jobLocation ? `${job.jobLocation.streetAddress}, ${job.jobLocation.city}, ${job.jobLocation.province} ${job.jobLocation.postalCode}` : 'N/A'}
+                                <strong>Description:</strong> {job.jobDescription}
                             </Typography>
-                            <Typography>Type: {formatKeyForDisplay(job.jobType)}</Typography>
-                            <Typography>{formatKeyForDisplay(selectedJob?.jobType)}</Typography>
-                            <Typography>Industry Type: {job.industryType ? job.industryType : 'N/A'}</Typography>
+                            <Typography>
+                                <strong>Location:</strong> {job.jobLocation ? `${job.jobLocation.streetAddress}, ${job.jobLocation.city}, ${job.jobLocation.province} ${job.jobLocation.postalCode}` : 'N/A'}
+                            </Typography>
+                            <Typography>
+                                <strong>Job Type:</strong> {formatKeyForDisplay(job.jobType)}
+                            </Typography>
+                            <Typography>
+                                <strong>Industry Type:</strong> {job.industryType ? job.industryType : 'N/A'}
+                            </Typography>
                             {job.showWageRate && (
                                 <Typography>
-                                    Pay: ${job.payAmount} {job.payRate === 'perHour' ? 'per hour' : 'per year'}
+                                    <strong>Pay:</strong> ${job.payAmount} {job.payRate === 'perHour' ? 'per hour' : 'per year'}
                                 </Typography>
                             )}
                             <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>

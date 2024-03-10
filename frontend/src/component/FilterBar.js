@@ -17,6 +17,7 @@ const FilterBar = ({ onFilterChange }) => {
     const [distanceFilter, setDistanceFilter] = useState('');
     const [industryTypeFilter, setIndustryTypeFilter] = useState('');
     const [payFilter, setPayFilter] = useState('');
+    const [payDisplay, setPayDisplay] = useState('');
     const [workAvailabilityFilter, setWorkAvailabilityFilter] = useState('');
     const [locations, setLocations] = useState([]);
     const [subMenuAnchorEl, setSubMenuAnchorEl] = useState(null);
@@ -60,21 +61,69 @@ const FilterBar = ({ onFilterChange }) => {
     };
 
     const handlePayTypeChange = (payType) => {
+        let selectedPayType = '';
+        let payRate = '';
+
         if (payType === 'perHour' || payType === 'perYear') {
-            // Set the payType directly without relying on state
-            setPayFilter(payType);
-            onFilterChange('payRate', payType);
-            onFilterChange('pay', ''); // Clear the existing pay value
+            selectedPayType = payType === 'perHour' ? 'Per Hour' : 'Per Year';
+            payRate = payType;
         } else {
-            // Handle specific pay amounts for 'perHour' and 'perYear'
-            setPayFilter(payType);
-            // Set the appropriate payRate based on payType
-            const payRate = payType === 'below20' || payType === '20to30' || payType === '30to40' || payType === '40plus'
-                ? 'perHour'
-                : 'perYear';
-            onFilterChange('payRate', payRate);
-            onFilterChange('pay', payType);
+            switch (payType) {
+                case 'minimumWage':
+                    selectedPayType = 'Per Hour: Minimum Wage';
+                    payRate = 'perHour';
+                    break;
+                case 'below20':
+                    selectedPayType = 'Per Hour: Below $20';
+                    payRate = 'perHour';
+                    break;
+                case '20to25':
+                    selectedPayType = 'Per Hour: $20 to $25';
+                    payRate = 'perHour';
+                    break;
+                case '25to30':
+                    selectedPayType = 'Per Hour: $25 to $30';
+                    payRate = 'perHour';
+                    break;
+                case '30to40':
+                    selectedPayType = 'Per Hour: $30 to $40';
+                    payRate = 'perHour';
+                    break;
+                case '40plus':
+                    selectedPayType = 'Per Hour: $40+';
+                    payRate = 'perHour';
+                    break;
+                case 'below40k':
+                    selectedPayType = 'Per Year: Below $40k';
+                    payRate = 'perYear';
+                    break;
+                case '40kto50k':
+                    selectedPayType = 'Per Year: $40k to $50k';
+                    payRate = 'perYear';
+                    break;
+                case '50kto60k':
+                    selectedPayType = 'Per Year: $50k to $60k';
+                    payRate = 'perYear';
+                    break;
+                case '60kto80k':
+                    selectedPayType = 'Per Year: $60k to $80k';
+                    payRate = 'perYear';
+                    break;
+                case '80kplus':
+                    selectedPayType = 'Per Year: $80k+';
+                    payRate = 'perYear';
+                    break;
+                default:
+                    break;
+            }
         }
+
+        setPayFilter(payRate); // Use payRate for internal tracking
+        setPayDisplay(selectedPayType); // Use selectedPayType for display purposes
+
+        // Update filters via onFilterChange
+        onFilterChange('payRate', payRate);
+        onFilterChange('pay', payType);
 
         // Close the submenu
         setSubMenuAnchorEl(null);
@@ -184,6 +233,8 @@ const FilterBar = ({ onFilterChange }) => {
                 <Select
                     label="Pay"
                     value={payFilter}
+                    // displayEmpty
+                    renderValue={() => payDisplay || 'Select'}
                     onChange={(e) => {
                         setPayFilter(e.target.value);
                         onFilterChange('pay', e.target.value);
@@ -201,18 +252,21 @@ const FilterBar = ({ onFilterChange }) => {
                 >
                     {payFilter === 'perHour' && (
                         <>
+                            <MenuItem onClick={() => handlePayTypeChange('minimumWage')}>Minimum Wage</MenuItem>
                             <MenuItem onClick={() => handlePayTypeChange('below20')}>Below $20 per hour</MenuItem>
-                            <MenuItem onClick={() => handlePayTypeChange('20to30')}>$20 to $30 per hour</MenuItem>
+                            <MenuItem onClick={() => handlePayTypeChange('20to25')}>$20 to $25 per hour</MenuItem>
+                            <MenuItem onClick={() => handlePayTypeChange('25to30')}>$25 to $30 per hour</MenuItem>
                             <MenuItem onClick={() => handlePayTypeChange('30to40')}>$30 to $40 per hour</MenuItem>
                             <MenuItem onClick={() => handlePayTypeChange('40plus')}>$40+ per hour</MenuItem>
                         </>
                     )}
                     {payFilter === 'perYear' && (
                         <>
-                            <MenuItem onClick={() => handlePayTypeChange('below50k')}>Below $50,000 per year</MenuItem>
-                            <MenuItem onClick={() => handlePayTypeChange('50kto75k')}>$50,000 to $75,000 per year</MenuItem>
-                            <MenuItem onClick={() => handlePayTypeChange('75kto100k')}>$75,000 to $100,000 per year</MenuItem>
-                            <MenuItem onClick={() => handlePayTypeChange('100kplus')}>$100,000+ per year</MenuItem>
+                            <MenuItem onClick={() => handlePayTypeChange('below40k')}>Below $40k per year</MenuItem>
+                            <MenuItem onClick={() => handlePayTypeChange('40kto50k')}>$40k to $50k per year</MenuItem>
+                            <MenuItem onClick={() => handlePayTypeChange('50kto60k')}>$50k to $60k per year</MenuItem>
+                            <MenuItem onClick={() => handlePayTypeChange('60kto80k')}>$60k to $80k per year</MenuItem>
+                            <MenuItem onClick={() => handlePayTypeChange('80kplus')}>$80k+ per year</MenuItem>
                         </>
                     )}
                 </Menu>

@@ -18,7 +18,9 @@ const PricingPage = () => {
     const fetchPricingDetails = async () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/pricing-plans`);
-        setPricingPlans(response.data);
+        // Sort pricing plans by price in ascending order
+        const sortedPlans = response.data.sort((a, b) => a.price - b.price);
+        setPricingPlans(sortedPlans);
       } catch (error) {
         console.error('Error fetching pricing details:', error);
       }
@@ -65,7 +67,7 @@ const PricingPage = () => {
           backgroundRepeat: 'no-repeat',
           alignItems: 'center',
           justifyContent: 'center',
-          height: '100vh',
+          minHeight: '100vh',
           width: '100%',
           backgroundColor: '#f5f5f5',
         }}
@@ -74,11 +76,11 @@ const PricingPage = () => {
           <Typography variant="h4" gutterBottom marked="center" align="center" sx={{ mt: 3, mb: 2 }}>
             Pricing Plans
           </Typography>
-          <Grid container spacing={3}>
+          <Grid container spacing={3} justifyContent="center">
             {pricingPlans.map((plan) => (
-              <Grid item key={plan._id} xs={12} sm={6} md={3}>
-                <Card>
-                  <CardContent>
+              <Grid item key={plan._id} xs={12} sm={6} md={4} lg={3}>
+                <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <CardContent sx={{ flexGrow: 1 }}>
                     <Typography variant="h5" mb={2} align="center">
                       {plan.name}
                     </Typography>
@@ -90,25 +92,27 @@ const PricingPage = () => {
                     </Typography>
                     <ul>
                       {plan.features.map((feature, index) => (
-                        <li key={index}>{feature}</li>
+                        <li key={index} style={plan.name === 'Platinum' && feature.includes('Unlimited Access to Candidate Search') ? { fontWeight: 'bold', color: 'blue' } : {}}>
+                          {feature}
+                        </li>
                       ))}
                     </ul>
-                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                      {plan.price !== 0 ? (
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          onClick={() => handleBuyNow(plan.name)}
-                        >
-                          Buy Now
-                        </Button>
-                      ) : (
-                        <Typography variant="caption" color="textSecondary">
-                          Free Plan
-                        </Typography>
-                      )}
-                    </Box>
                   </CardContent>
+                  <Box sx={{ display: 'flex', justifyContent: 'center', mt: 'auto', pb: 2 }}>
+                    {plan.price !== 0 ? (
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleBuyNow(plan.name)}
+                      >
+                        Buy Now
+                      </Button>
+                    ) : (
+                      <Typography variant="caption" color="textSecondary">
+                        Free Plan
+                      </Typography>
+                    )}
+                  </Box>
                 </Card>
               </Grid>
             ))}

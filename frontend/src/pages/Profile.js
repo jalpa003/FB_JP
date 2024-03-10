@@ -18,10 +18,12 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import Popover from '@mui/material/Popover';
 import DesiredScheduleInput from '../component/DesiredScheduleInput';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const jobTitles = [
     'Chef',
@@ -34,7 +36,6 @@ const jobTitles = [
     'Bartender',
     'Server',
     'Host/Hostess',
-    'Waiter/Waitress',
     'Catering Manager',
     'Event Planner',
     'Sommelier',
@@ -46,6 +47,7 @@ const jobTitles = [
     'Food Runner',
     'Prep Cook',
     'Food Expeditor',
+    'Door Supervisor',
     'Culinary Instructor',
     'Restaurant Manager',
     'General Manager',
@@ -53,10 +55,13 @@ const jobTitles = [
     'Restaurant Owner',
 ];
 
+const sortedJobTitles = jobTitles.sort((a, b) => a.localeCompare(b));
 function CandidateProfile() {
     const navigate = useNavigate();
     const [sent, setSent] = useState(false);
     const [existingDetails, setExistingDetails] = useState({});
+    const [phone, setPhone] = React.useState('');
+    const [phoneError, setPhoneError] = useState('');
     const imageUrl = `${process.env.REACT_APP_API_URL}/uploads/images/${existingDetails.profilePicture}`;
     const resumeUrl = `${process.env.REACT_APP_API_URL}/uploads/resumes/${existingDetails.resume}`;
     const [anchorEl, setAnchorEl] = useState(null);
@@ -71,6 +76,11 @@ function CandidateProfile() {
                 });
 
                 if (response.status === 200) {
+                    const storedPhone = response.data?.candidateWithUserDetails?.phone || response.data?.userDetails?.phone;
+
+                    // Format the phone number before setting it in the state
+                    setPhone(formatPhoneNumber(storedPhone));
+
                     setExistingDetails(response.data.candidateWithUserDetails || response.data.userDetails);
                 }
             } catch (error) {
@@ -97,13 +107,20 @@ function CandidateProfile() {
         if (!values.phone) {
             errors.phone = 'Phone Number is required';
         }
+        if (values.desiredPayType && !values.desiredPayAmount) {
+            errors.desiredPayAmount = 'Desired pay amount is required';
+        }
+        if (values.desiredPayAmount && !values.desiredPayType) {
+            errors.desiredPayType = 'Desired pay type is required';
+        }
         return errors;
     };
 
     const handleSubmit = async (values) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.post(`${process.env.REACT_APP_API_URL}/complete_candidate_profile`, values,
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/complete_candidate_profile`,
+                { ...values, phone: phone },
                 { headers: { 'Authorization': `${token}` } });
 
             if (response.status === 200) {
@@ -121,6 +138,10 @@ function CandidateProfile() {
             const errorData = error.response.data;
             toast.error(errorData.messages);
         }
+    };
+
+    const formatPhoneNumber = (phoneNumber) => {
+        return phoneNumber ? `+1 ${phoneNumber.slice(1, 4)} ${phoneNumber.slice(4, 7)}-${phoneNumber.slice(7)}` : '';
     };
 
     const handleEditAvatar = (event) => {
@@ -321,6 +342,19 @@ function CandidateProfile() {
         );
     };
 
+    const isValidPhoneNumber = (value) => {
+        return value.startsWith('+1');
+    };
+
+    const handleOnChange = (value) => {
+        setPhone(value);
+        if (!isValidPhoneNumber(value)) {
+            setPhoneError('Phone number must start with +1');
+        } else {
+            setPhoneError('');
+        }
+    };
+
     return (
         <React.Fragment>
             <AppAppBar />
@@ -458,25 +492,27 @@ function CandidateProfile() {
                                         label="Headline"
                                         name="headline"
                                     />
-                                    <Grid container spacing={2}>
+                                    <Grid container spacing={2} alignItems="center">
                                         <Grid item xs={12} sm={6}>
-                                            <Field
-                                                component={RFTextField}
-                                                disabled={submitting || sent}
-                                                fullWidth
-                                                label="Phone"
-                                                name="phone"
-                                                required
+                                            <label htmlFor="phone">Phone Number</label>
+                                            <PhoneInput
+                                                country={'ca'}
+                                                value={phone}
+                                                onChange={handleOnChange}
+                                                onlyCountries={['ca']}
+                                                inputProps={{ name: 'phone', required: true }}
+                                                disableDropdown
                                             />
+                                            {phoneError && <div style={{ color: 'red' }}>{phoneError}</div>}
                                         </Grid>
-                                        <Grid item xs={12} sm={4}>
+                                        <Grid item xs={10} sm={4}>
                                             <Field name="showPhoneToEmployers" type="checkbox">
                                                 {({ input }) => (
                                                     <FormControlLabel
                                                         control={
-                                                        <Checkbox {...input} />}
+                                                            <Checkbox {...input} />}
                                                         label="Viewable by Employers?"
-                                                        sx={{ paddingTop: '20px' }}
+                                                        sx={{ paddingTop: '12px' }}
                                                     />
                                                 )}
                                             </Field>
@@ -536,7 +572,7 @@ function CandidateProfile() {
                                         SelectProps={{ native: true }}
                                     >
                                         <option value="">Select</option>
-                                        {jobTitles.map((title) => (
+                                        {sortedJobTitles.map((title) => (
                                             <option key={title} value={title}>
                                                 {title}
                                             </option>
@@ -552,11 +588,43 @@ function CandidateProfile() {
                                         SelectProps={{ native: true }}
                                     >
                                         <option value="">Select</option>
-                                        <option value="FT">Full Time</option>
-                                        <option value="PT">Part Time</option>
-                                        <option value="Temp">Temporary</option>
-                                        <option value="Apprentice">Apprentice</option>
+                                        <option value="fullTime">Full Time</option>
+                                        <option value="partTime">Part Time</option>
+                                        <option value="internship">Internship</option>
+                                        <option value="casual">Casual</option>
+                                        <option value="seasonal">Seasonal</option>
                                     </Field>
+                                    <Grid container spacing={2}>
+                                        <Grid item xs={12} sm={6}>
+                                            <Field
+                                                autoFocus
+                                                component={RFTextField}
+                                                disabled={submitting || sent}
+                                                fullWidth
+                                                label="Desired Pay"
+                                                name="desiredPayAmount"
+                                                type="number"
+                                                InputProps={{ inputProps: { min: 0 } }}
+                                            />
+
+                                        </Grid>
+                                        <Grid item xs={12} sm={6}>
+                                            <Field
+                                                autoFocus
+                                                component={RFTextField}
+                                                disabled={submitting || sent}
+                                                fullWidth
+                                                select
+                                                label="Desired Pay Type"
+                                                name="desiredPayType"
+                                                SelectProps={{ native: true }}
+                                            >
+                                                <option value="">Select</option>
+                                                <option value="perHour">Per Hour</option>
+                                                <option value="perYear">Per Year</option>
+                                            </Field>
+                                        </Grid>
+                                    </Grid>
                                     <Grid item xs={12} style={{ marginTop: '16px' }} />
                                     <Typography variant="h6" gutterBottom>
                                         Desired Work Schedule
@@ -647,6 +715,16 @@ function CandidateProfile() {
                                                 }
                                                 label="Fine Dining"
                                             />
+                                            <FormControlLabel
+                                                control={
+                                                    <Field
+                                                        type="checkbox"
+                                                        name="jobTraining.POSExperience"
+                                                        render={({ input }) => <Checkbox {...input} onChange={(e) => input.onChange(e.target.checked)} />}
+                                                    />
+                                                }
+                                                label="POS Experience"
+                                            />
                                         </Grid>
                                     </Grid>
                                     <Field
@@ -672,6 +750,7 @@ function CandidateProfile() {
                                         fullWidth
                                         label="Language Skills"
                                         name="languageSkills"
+                                        placeholder="Enter language skills separated by commas (e.g., English,French)"
                                     />
                                     {/* Form feedback for errors */}
                                     <FormSpy subscription={{ submitError: true }}>
