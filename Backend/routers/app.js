@@ -65,6 +65,5 @@ router.get('/pricing-plans', pricingRoutes.getPricingPlans);
 router.post('/create-checkout-session', middleware.verifyToken, pricingRoutes.createCheckoutSession);
 
 router.post('/apply_job', middleware.verifyToken, uploadMiddleware([{ name: 'resume', maxCount: 1 },]), applicationRoutes.createJobApplication);
-router.get('/applications/:jobId', middleware.verifyToken, applicationRoutes.getApplicationDetails);
 
 module.exports = router;
