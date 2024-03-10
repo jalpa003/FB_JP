@@ -36,12 +36,20 @@ function getWageFilter(payRate, payAmount) {
     // Handle string representations of payAmount for perHour
     if (payRate === 'perHour') {
         switch (payAmount) {
+            case 'minimumWage':
+                lowerLimit = 0;
+                upperLimit = 15.25;
+                break;
             case 'below20':
                 lowerLimit = 0;
                 upperLimit = 20;
                 break;
-            case '20to30':
+            case '20to25':
                 lowerLimit = 20;
+                upperLimit = 25;
+                break;
+            case '25to30':
+                lowerLimit = 25;
                 upperLimit = 30;
                 break;
             case '30to40':
@@ -61,26 +69,29 @@ function getWageFilter(payRate, payAmount) {
 
     // Handle string representations of payAmount for perYear
     switch (payAmount) {
-        case 'below50k':
+        case 'below40k':
             lowerLimit = 0;
+            upperLimit = 40000;
+            break;
+        case '40kto50k':
+            lowerLimit = 40000;
             upperLimit = 50000;
             break;
-        case '50kto75k':
+        case '50kto60k':
             lowerLimit = 50000;
-            upperLimit = 75000;
+            upperLimit = 60000;
             break;
-        case '75kto100k':
-            lowerLimit = 75000;
-            upperLimit = 100000;
+        case '60kto80k':
+            lowerLimit = 60000;
+            upperLimit = 80000;
             break;
-        case '100kplus':
-            lowerLimit = 100000;
-            // upperLimit = Infinity; // Represents any value greater than or equal to 100000
+        case '80kplus':
+            lowerLimit = 80000;
+            // upperLimit = Infinity; // Represents any value greater than or equal to 80000
             break;
         default:
             return null; // Invalid payAmount
     }
-
     return { payRate: 'perYear', payAmount: { $gte: lowerLimit, $lt: upperLimit } };
 }
 

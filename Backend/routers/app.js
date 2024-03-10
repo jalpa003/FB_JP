@@ -37,6 +37,9 @@ router.get('/get_candidate_profile', middleware.verifyToken, candidateRoutes.get
 router.get('/job-search', middleware.verifyToken, jobsRoutes.searchJobs);
 router.get('/get_resume', middleware.verifyToken, candidateRoutes.getResume);
 router.get('/fetch_locations', jobsRoutes.fetchLocations);
+router.get('/additional-questions', middleware.verifyToken, jobsRoutes.getAdditionalQuestions);
+router.put('/job/update/:jobId', middleware.verifyToken, jobsRoutes.updateJobDetails);
+router.get('/questions/:questionId', middleware.verifyToken, jobsRoutes.getQuestionByID);
 
 //Employer Profile Routes
 router.post('/employer-profile', middleware.verifyToken, employerRoutes.createEmployerProfile);
@@ -50,6 +53,7 @@ router.post('/close_job/:jobId', middleware.verifyToken, jobsRoutes.closeJob);
 router.post('/reopen_job/:jobId', middleware.verifyToken, jobsRoutes.reopenJob);
 router.get('/all_jobs', jobsRoutes.getAllJobs);
 router.get('/job_details/:jobId', jobsRoutes.getJobDetails);
+router.get('/get_candidates', middleware.verifyToken, employerRoutes.getCandidates);
 
 router.post('/create_emp_profile', middleware.verifyToken, employerRoutes.createEmployerProfile);
 router.get('/get_all_employees', middleware.verifyToken, employerRoutes.getAllEmployers);
@@ -61,5 +65,6 @@ router.get('/pricing-plans', pricingRoutes.getPricingPlans);
 router.post('/create-checkout-session', middleware.verifyToken, pricingRoutes.createCheckoutSession);
 
 router.post('/apply_job', middleware.verifyToken, uploadMiddleware([{ name: 'resume', maxCount: 1 },]), applicationRoutes.createJobApplication);
+router.get('/applications/:jobId', middleware.verifyToken, applicationRoutes.getApplicationDetails);
 
 module.exports = router;

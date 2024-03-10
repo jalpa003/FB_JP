@@ -7,6 +7,7 @@ const fs = require('fs');
 
 module.exports.createJobApplication = async (req, res) => {
     const { jobId } = req.body;
+    const additionalQuestionsResponses = JSON.parse(req.body.additionalQuestionsResponses);
     const applicantId = req.user.id;
 
     try {
@@ -39,9 +40,9 @@ module.exports.createJobApplication = async (req, res) => {
 
         // Handle resume upload with async/await
         const newResumeFilename = req.files?.["resume"]?.[0]?.filename || "";
-        if (!newResumeFilename) {
-            return res.status(400).json({ message: 'Resume is required for job application' });
-        }
+        // if (!newResumeFilename) {
+        //     return res.status(400).json({ message: 'Resume is required for job application' });
+        // }
 
         // If there's an existing resume, delete it from the uploads directory
         if (candidateProfile.resume) {
@@ -58,6 +59,7 @@ module.exports.createJobApplication = async (req, res) => {
             applicant: applicantId,
             job: jobId,
             resume: newResumeFilename,
+            additionalQuestionsResponses: additionalQuestionsResponses,
         });
 
         // Save the job application to the database

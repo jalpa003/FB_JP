@@ -1,6 +1,8 @@
 const JobPost = require('../models/jobs');
 const CandidateProfile = require('../models/candidates');
 const EmployerProfile = require('../models/employers');
+const JobApplication = require('../models/jobApplication');
+const { AdditionalQuestions } = require('../models/additionalQuestions');
 const { getDateFilter, handleRegistrationError, getWageFilter, getWorkAvailabilityFilter } = require('../middleware/jobUtils');
 module.exports.createJobPosting = async (req, res) => {
     try {
@@ -14,10 +16,14 @@ module.exports.createJobPosting = async (req, res) => {
             return res.status(404).json({ message: "Employer profile not found." });
         }
 
+        // Extract selected questions from request body
+        const { selectedQuestions } = req.body;
+
         // Create a new job posting
         const newJob = new JobPost({
             user: userId,
             industryType: employerProfile.fAndBIndustry,
+            selectedQuestions,
             ...req.body,
         });
 
@@ -43,19 +49,33 @@ module.exports.getAllJobsByEmployerID = async (req, res) => {
 
         if (!jobs) throw Error("No jobs found");
 
-        // Fetch the resume from CandidateProfile for each applied user
+        // Fetch the resume and additional question responses from JobApplications for each applied user
         const populatedJobs = await Promise.all(jobs.map(async (job) => {
             const populatedUsers = await Promise.all(job.appliedUsers.map(async (appliedUser) => {
-                const candidateProfile = await CandidateProfile.findOne({ user: appliedUser._id });
-                return {
-                    _id: appliedUser._id,
-                    firstName: appliedUser.firstName,
-                    lastName: appliedUser.lastName,
-                    resume: candidateProfile ? candidateProfile.resume : null,
-                };
-            }));
+                const jobApplications = await JobApplication.find({ applicant: appliedUser._id, job: job._id });
+                const populatedApplications = await Promise.all(jobApplications.map(async (application) => {
+                    const candidateProfile = await CandidateProfile.findOne({ user: appliedUser._id });
 
-            return { ...job._doc, appliedUsers: populatedUsers };
+                    // Populate additional question responses with questions
+                    const populatedResponses = await Promise.all(application.additionalQuestionsResponses.map(async (response) => {
+                        const question = await AdditionalQuestions.findById(response.question);
+                        return {
+                            question: question.question,
+                            response: response.response
+                        };
+                    }));
+
+                    return {
+                        _id: appliedUser._id,
+                        firstName: appliedUser.firstName,
+                        lastName: appliedUser.lastName,
+                        resume: application.resume,
+                        additionalQuestionsResponses: populatedResponses,
+                    };
+                }));
+                return populatedApplications;
+            }));
+            return { ...job._doc, appliedUsers: populatedUsers.flat() };
         }));
 
         res.status(200).json({ jobs: populatedJobs });
@@ -88,17 +108,23 @@ module.exports.editJobByID = async (req, res) => {
     try {
         const jobId = req.params.jobId;
         const updatedJob = req.body;
+        const { selectedQuestions } = req.body;
+
         // Check if the job exists
         const job = await JobPost.findById(jobId);
         if (!job) {
             return res.status(404).json({ message: 'Job not found' });
         }
+
         // Check if the logged-in user is the owner of the job
         if (job.user.toString() !== req.user.id) {
             return res.status(403).json({ message: 'You are not authorized to edit this job' });
         }
-        const updatedJobPost = await JobPost.findByIdAndUpdate(jobId,
-            updatedJob, { new: true });
+
+        // Include selectedQuestions in the updatedJob object
+        updatedJob.selectedQuestions = selectedQuestions;
+
+        const updatedJobPost = await JobPost.findByIdAndUpdate(jobId, updatedJob, { new: true });
         if (!updatedJobPost) {
             return res.status(404).json({ message: "Job not found" });
         }
@@ -386,3 +412,52 @@ module.exports.fetchLocations = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+
+//fetch additional questions
+module.exports.getAdditionalQuestions = async (req, res) => {
+    try {
+        const questions = await AdditionalQuestions.find({});
+        res.json(questions);
+    } catch (error) {
+        console.error('Failed to fetch additional questions:', error);
+        res.status(500).send('Server Error');
+    }
+}
+
+//update job details (Additional questions)
+module.exports.updateJobDetails = async (req, res) => {
+    const { additionalQuestions } = req.body;
+
+    try {
+        // Find the job by ID and update it
+        const updatedJob = await JobPost.findOneAndUpdate(
+            { _id: req.params.jobId },
+            { additionalQuestions: additionalQuestions },
+            { new: true }
+        );
+
+        res.json(updatedJob);
+    } catch (error) {
+        console.error('Error updating job:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+//fetch  the questions associated with the job
+module.exports.getQuestionByID = async (req, res) => {
+    try {
+        const questionId = req.params.questionId;
+
+        // Fetch the question from the database using the Question model
+        const question = await AdditionalQuestions.findById(questionId);
+
+        if (!question) {
+            return res.status(404).json({ message: 'Question not found' });
+        }
+
+        res.json(question);
+    } catch (error) {
+        console.error('Error fetching question:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}

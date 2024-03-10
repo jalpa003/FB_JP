@@ -15,6 +15,17 @@ const jobApplicationSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    additionalQuestionsResponses: [{
+        question: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'AdditionalQuestion'
+        },
+        response: {
+            type: String,
+            enum: ['Yes', 'No'],
+            required: true
+        }
+    }]
 }, { timestamps: true });
 
 const JobApplication = mongoose.model('JobApplication', jobApplicationSchema);

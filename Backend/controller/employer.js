@@ -1,4 +1,5 @@
 const Employer = require('../models/employers');
+const Candidate = require('../models/candidates');
 const User = require('../models/users');
 const mongoose = require('mongoose')
 
@@ -211,6 +212,104 @@ module.exports.deleteEmployee = async (req, res) => {
         res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 };
+
+//get candidate profile
+module.exports.getCandidates = async (req, res) => {
+    try {
+        let query = {};
+
+        // Filter by desired job title
+        if (req.query.desiredJobTitle) {
+            query.desiredJobTitle = req.query.desiredJobTitle;
+        }
+
+        // Filter by desired job type
+        if (req.query.desiredJobType) {
+            query.desiredJobType = req.query.desiredJobType;
+        }
+
+        // Filter by experience level
+        if (req.query.experienceLevel) {
+            // Handle special cases for '<1' and '10+'
+            if (req.query.experienceLevel === '<1') {
+                query.experienceLevel = { $lt: '1' };
+            } else if (req.query.experienceLevel === '10+' || req.query.experienceLevel === '10%2B') {
+                query.experienceLevel = { $gte: '10' };
+            } else {
+                query.experienceLevel = req.query.experienceLevel;
+            }
+        }
+
+        // Filter by language skills
+        if (req.query.languageSkills) {
+            // Split the language skills string into an array
+            const languageSkillsArray = req.query.languageSkills.split(',').map(skill => skill.trim());
+            // Match candidates who have at least one of the specified language skills, case-insensitive
+            query.languageSkills = { $in: languageSkillsArray.map(skill => new RegExp(skill, 'i')) };
+        }
+
+        if (req.query.location) {
+            let [city, province] = req.query.location.split(',');
+
+            // If only the province is provided, set it as the province and leave city empty
+            if (!province) {
+                province = city;
+                city = '';
+            }
+
+            // Trim leading and trailing whitespace
+            city = city.trim();
+            province = province.trim();
+
+            // Create regular expressions for case-insensitive matching
+            const cityRegex = new RegExp(city, 'i');
+            const provinceRegex = new RegExp(province, 'i');
+
+            // Construct the query to search for the city and/or province
+            if (city && province) {
+                // If both city and province are provided, search for both
+                query['address.city'] = cityRegex;
+                query['address.province'] = provinceRegex;
+            } else if (province) {
+                // If only province is provided, search for province only
+                query['address.province'] = provinceRegex;
+            }
+        }
+
+        // Filter by job training
+        if (req.query.jobTraining) {
+            const training = req.query.jobTraining;
+            query[`jobTraining.${training}`] = true;
+        }
+
+        const limit = parseInt(req.query.limit) || 10;
+        const page = parseInt(req.query.page) || 1;
+        const skip = (page - 1) * limit;
+
+        const candidates = await Candidate.find(query)
+            .populate('user', 'firstName lastName email')
+            .select('phone profilePicture resume desiredSchedule')
+            .limit(limit)
+            .skip(skip)
+            .sort({ createdAt: -1 });
+
+        const totalCount = await Candidate.countDocuments(query);
+        const totalPages = Math.ceil(totalCount / limit);
+
+        res.json({
+            candidates,
+            meta: {
+                totalCount,
+                totalPages,
+                currentPage: page,
+                perPage: limit,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
 
 function handleRegistrationError(error, res) {
     if (error.name === 'ValidationError') {

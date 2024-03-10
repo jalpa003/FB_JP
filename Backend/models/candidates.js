@@ -30,10 +30,20 @@ const candidateProfile = new mongoose.Schema({
     },
     desiredJobType: {
         type: String,
-        enum: ['FT', 'PT', 'Temp', 'Apprentice'],
+        enum: ['fullTime', 'partTime', 'internship', 'casual', 'seasonal'],
         trim: true,
     },
     desiredSchedule: desiredScheduleSchema,
+    desiredPayAmount: {
+        type: Number,
+        min: [0, 'Desired pay should be a non-negative value'],
+        default: 0
+    },
+    desiredPayType: {
+        type: String,
+        enum: ['perHour', 'perYear'],
+        trim: true
+    },
     phone: {
         type: String,
         required: [true, 'Phone number is required'],
@@ -90,6 +100,10 @@ const candidateProfile = new mongoose.Schema({
             default: false
         },
         fineDining: {
+            type: Boolean,
+            default: false
+        },
+        POSExperience: {
             type: Boolean,
             default: false
         }

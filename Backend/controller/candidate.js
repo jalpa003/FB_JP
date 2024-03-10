@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 module.exports.completeCandidateProfile = async (req, res) => {
-    const { firstName, lastName, password, headline, phone, showPhoneToEmployers, address, willingToRelocate, desiredJobTitle, desiredJobType, desiredSchedule, distance, jobTraining, experienceLevel, languageSkills } = req.body;
+    const { firstName, lastName, password, headline, phone, showPhoneToEmployers, address, willingToRelocate, desiredJobTitle, desiredJobType, desiredSchedule, desiredPayAmount, desiredPayType, distance, jobTraining, experienceLevel, languageSkills } = req.body;
     const userId = req.user.id;
     try {
         // Check if the user exists
@@ -38,11 +38,17 @@ module.exports.completeCandidateProfile = async (req, res) => {
             candidateProfile.desiredJobType = desiredJobType;
             candidateProfile.desiredJobTitle = desiredJobTitle;
             candidateProfile.desiredSchedule = desiredSchedule;
+            candidateProfile.desiredPayAmount = desiredPayAmount;
+            candidateProfile.desiredPayType = desiredPayType;
             candidateProfile.distance = distance;
             candidateProfile.jobTraining = jobTraining;
             candidateProfile.experienceLevel = experienceLevel;
-            candidateProfile.languageSkills = languageSkills;
-
+            // Check if languageSkills is an array before calling map
+            if (Array.isArray(languageSkills)) {
+                candidateProfile.languageSkills = languageSkills.map(skill => skill.trim());
+            } else {
+                candidateProfile.languageSkills = [languageSkills.trim()];
+            }
             // Save the updated candidate profile
             candidateProfile = await candidateProfile.save();
         }
@@ -58,10 +64,12 @@ module.exports.completeCandidateProfile = async (req, res) => {
                 desiredJobTitle,
                 desiredJobType,
                 desiredSchedule,
+                desiredPayAmount,
+                desiredPayType,
                 distance,
                 jobTraining,
                 experienceLevel,
-                languageSkills
+                languageSkills: languageSkills.split(',').map(skill => skill.trim()), // Split by comma and trim whitespace
             });
 
             // Save the new candidate profile

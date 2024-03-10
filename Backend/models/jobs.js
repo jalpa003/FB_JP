@@ -67,6 +67,10 @@ const jobSchema = new mongoose.Schema({
             type: Boolean,
             default: false
         },
+        POSExperience: {
+            type: Boolean,
+            default: false
+        }
     },
     experience: {
         type: String,
@@ -194,10 +198,6 @@ const jobSchema = new mongoose.Schema({
         },
     },
     applicationDeadline: {
-        // hasDeadline: {
-        //     type: Boolean,
-        //     default: false,
-        // },
         deadlineDate: Date,
     },
     communicationSettings: {
@@ -230,6 +230,10 @@ const jobSchema = new mongoose.Schema({
         enum: ['Open', 'Closed'],
         default: 'Open',
     },
+    selectedQuestions: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'AdditionalQuestion'
+    }],
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
