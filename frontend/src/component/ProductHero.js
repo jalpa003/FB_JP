@@ -63,7 +63,7 @@ export default function ProductHero() {
                     fontSize: '1.4rem',
                 }}
             >
-                Where Talent Meets Opportunity in the Food and Bartending World
+                Where Talent Meets Opportunity in the Food and Beverage World
             </Typography>
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                 <TextField

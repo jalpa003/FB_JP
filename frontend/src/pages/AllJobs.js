@@ -341,7 +341,7 @@ const JobListing = () => {
                     {/* Job listings */}
                     {jobs.map((job) => (
                         <Paper key={job._id} elevation={3} sx={{ p: 3, mb: 3 }}>
-                            <Typography variant="h6" mb={2} sx={{ fontFamily: 'cursive', fontSize: '20px', color: '#FF3366', fontWeight: 'bold' }}>
+                            <Typography variant="h6" mb={2} sx={{ fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif', fontSize: '20px', color: '#FF3366', fontWeight: 'bold' }}>
                                 <strong>{job.jobTitle}</strong>
                             </Typography>
                             <Typography>
