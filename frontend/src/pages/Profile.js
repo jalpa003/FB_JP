@@ -92,32 +92,20 @@ function CandidateProfile() {
         fetchExistingDetails();
     }, []);
 
-    const validate = (values) => {
-        // Implement your validation logic here if needed
-        const errors = {};
-        if (!values.firstName) {
-            errors.firstName = 'First Name is required';
-        }
-        if (!values.lastName) {
-            errors.lastName = 'Last Name is required';
-        }
-        if (!values.email) {
-            errors.email = 'Email is required';
-        }
-        if (!values.phone) {
-            errors.phone = 'Phone Number is required';
-        }
-        if (values.desiredPayType && !values.desiredPayAmount) {
-            errors.desiredPayAmount = 'Desired pay amount is required';
-        }
-        if (values.desiredPayAmount && !values.desiredPayType) {
-            errors.desiredPayType = 'Desired pay type is required';
-        }
-        return errors;
-    };
-
     const handleSubmit = async (values) => {
         try {
+            // Check for required fields
+            if (!values.firstName || !values.lastName || !values.phone) {
+                toast.error('Please fill in all required fields before saving your profile');
+                return;
+            }
+
+            // Check for desiredPayType and desiredPayAmount validation
+            if ((values.desiredPayType && !values.desiredPayAmount) || (values.desiredPayAmount && !values.desiredPayType)) {
+                toast.error('Desired pay type and amount must both be provided');
+                return;
+            }
+
             const token = localStorage.getItem('token');
             const response = await axios.post(`${process.env.REACT_APP_API_URL}/complete_candidate_profile`,
                 { ...values, phone: phone },
@@ -456,7 +444,6 @@ function CandidateProfile() {
                             initialValues={existingDetails}
                             onSubmit={handleSubmit}
                             subscription={{ submitting: true }}
-                            validate={validate}
                         >
                             {({ handleSubmit: handleSubmit2, submitting }) => (
                                 <Box component="form" onSubmit={handleSubmit2} noValidate sx={{ mt: 2 }}>
@@ -494,7 +481,7 @@ function CandidateProfile() {
                                     />
                                     <Grid container spacing={2} alignItems="center">
                                         <Grid item xs={12} sm={6}>
-                                            <label htmlFor="phone">Phone Number</label>
+                                            <label htmlFor="phone" style={{ marginTop: '0.5rem', display: 'block', color:'rgba(0, 0, 0, 0.6)', fontFamily:"'Work Sans',sans-serif",fontSize:'13px' }}>Phone Number<span style={{ color: 'gray' }}>*</span></label>
                                             <PhoneInput
                                                 country={'ca'}
                                                 value={phone}
@@ -521,7 +508,7 @@ function CandidateProfile() {
                                     <Field
                                         autoComplete="email"
                                         component={RFTextField}
-                                        disabled={submitting || sent}
+                                        disabled={true}
                                         fullWidth
                                         label="Email"
                                         margin="normal"
