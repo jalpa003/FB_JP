@@ -9,8 +9,7 @@ const AdditionalQuestions = ({ jobId, consentToAddQuestions, setConsentToAddQues
     useEffect(() => {
         if (consentToAddQuestions) {
             fetchQuestions();
-            //`selectedQuestions` prop is an array of question IDs
-            setSelectedQuestionIds(selectedQuestions);
+            setSelectedQuestionIds(selectedQuestions || []);
         }
     }, [consentToAddQuestions, selectedQuestions]);
 
@@ -20,7 +19,7 @@ const AdditionalQuestions = ({ jobId, consentToAddQuestions, setConsentToAddQues
             const response = await axios.get(`${process.env.REACT_APP_API_URL}/additional-questions`, {
                 headers: { Authorization: `${token}` },
             });
-            setQuestions(response.data);
+            setQuestions(response.data || []);
         } catch (error) {
             console.error('Failed to fetch questions:', error);
         }
@@ -38,20 +37,16 @@ const AdditionalQuestions = ({ jobId, consentToAddQuestions, setConsentToAddQues
     const handleSwitchChange = async (isChecked) => {
         setConsentToAddQuestions(isChecked);
         if (!isChecked) {
-            // Clear selected questions
             setSelectedQuestionIds([]);
             setSelectedQuestions([]);
 
-            // Call API to update the job (remove all selected questions)
             try {
                 const token = localStorage.getItem('token');
                 await axios.put(`${process.env.REACT_APP_API_URL}/job/update/${jobId}`, { additionalQuestions: [] }, {
                     headers: { Authorization: `${token}` },
                 });
-                // Handle success (optional)
             } catch (error) {
                 console.error('Failed to update job:', error);
-                // Handle error (optional)
             }
         }
     };
