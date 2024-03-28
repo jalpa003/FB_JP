@@ -76,27 +76,6 @@ const EditJobPostingForm = () => {
 
     const validate = (values) => {
         const errors = {};
-
-        if (!values.jobTitle) {
-            errors.jobTitle = 'Job Title is required';
-        }
-
-        if (!values.jobDescription) {
-            errors.jobDescription = 'Job Description is required';
-        }
-
-        if (!values.jobType) {
-            errors.jobType = 'Job Type is required';
-        }
-
-        if (!values.jobLocation) {
-            errors.jobLocation = 'Job Location is required';
-        }
-
-        if (values.hoursPerWeek !== undefined && values.hoursPerWeek < 0) {
-            errors.hoursPerWeek = 'Hours per week must be a positive number';
-        }
-
         if (values.showWageRate) {
             if (!values.payAmount) {
                 errors.payAmount = 'Pay Amount is required';
@@ -111,6 +90,17 @@ const EditJobPostingForm = () => {
 
     const handleSubmit = async (values) => {
         try {
+            if (!values.jobTitle || !values.jobDescription || !values.jobType || !values.jobLocation) {
+                toast.error('Please fill in all required fields before submitting the form.');
+                return;
+            }
+
+            // Check additional validation
+            if (values.hoursPerWeek !== undefined && values.hoursPerWeek < 0) {
+                toast.error('Hours per week must be a positive number');
+                return;
+            }
+
             // Retrieve the token from localStorage
             const token = localStorage.getItem('token');
 
@@ -198,7 +188,7 @@ const EditJobPostingForm = () => {
                                         required
                                     />
                                     <Typography variant="h5" gutterBottom>
-                                        Job Requirements
+                                        Location
                                     </Typography>
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} sm={6}>
@@ -266,7 +256,7 @@ const EditJobPostingForm = () => {
                                         </Grid>
                                     </Grid>
                                     <Typography variant="h5" gutterBottom>
-                                        Job Requirements
+                                        Required Training/Experience
                                     </Typography>
                                     <JobRequirementsCheckboxGroup />
                                     <Grid container spacing={2}>

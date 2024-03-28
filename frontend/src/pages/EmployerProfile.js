@@ -133,7 +133,7 @@ function EmployerProfile() {
                             <Field
                                 autoComplete="email"
                                 component={RFTextField}
-                                disabled={submitting || sent}
+                                disabled={true}
                                 fullWidth
                                 label="Email"
                                 margin="normal"

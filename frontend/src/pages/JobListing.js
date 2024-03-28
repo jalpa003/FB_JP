@@ -28,6 +28,8 @@ import axios from 'axios';
 import withRoot from '../withRoot';
 import { useNavigate } from 'react-router-dom';
 import AppliedUsersDialog from './AppliedUsersDialog';
+import UpgradePlanButton from '../component/UpgradePlan';
+import CircularProgress from '@mui/material/CircularProgress';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -43,11 +45,12 @@ const CreateJobButton = styled(FormButton)(({ theme }) => ({
     transition: 'background-image 0.3s',
 }));
 
-
-
 const JobListing = () => {
     const navigate = useNavigate();
     const [jobs, setJobs] = useState([]);
+    const [maxJobPostsAllowed, setMaxJobPostsAllowed] = useState(0);
+    const [jobPostDuration, setJobPostDuration] = useState(0);
+    const [loading, setLoading] = useState(true);
 
     // State to manage the close dialog
     const [openCloseDialog, setOpenCloseDialog] = useState({ open: false, jobId: null, closeReason: '' });
@@ -62,6 +65,7 @@ const JobListing = () => {
                     headers: { 'Authorization': `${token}` },
                 });
                 setJobs(response.data.jobs || []);
+                setLoading(false); 
             } catch (error) {
                 toast.error(
                     error?.response?.status === 401 ? "Please login again" : "Failed to load job listing",
@@ -70,7 +74,23 @@ const JobListing = () => {
             }
         };
 
+        // Fetch employer profile to get the maximum job posts allowed
+        const fetchEmployerProfile = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/get_single_employee`, {
+                    headers: { Authorization: `${token}` }
+                });
+
+                setMaxJobPostsAllowed(response.data.employerWithUserDetails.subscription.maxJobPostsAllowed || 0);
+                setJobPostDuration(response.data.employerWithUserDetails.subscription.jobPostDuration || 0);
+            } catch (error) {
+                console.error('Error fetching employer profile:', error);
+            }
+        };
+
         fetchJobs();
+        fetchEmployerProfile();
     }, []);
 
     const handleEditJob = (jobId) => {
@@ -159,7 +179,6 @@ const JobListing = () => {
         }
     };
 
-
     const handleOpenAppliedUsersDialog = (job) => {
         setOpenAppliedUsersDialog({ open: true, job });
     };
@@ -167,6 +186,15 @@ const JobListing = () => {
     const handleCloseAppliedUsersDialog = () => {
         setOpenAppliedUsersDialog({ open: false, job: null });
     };
+
+    if (loading) {
+        // Render circular loading indicator while data is being fetched
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
 
     return (
         <React.Fragment>
@@ -180,14 +208,51 @@ const JobListing = () => {
                 }}
             >
                 <Container maxWidth="md">
-                    {jobs.length > 0 && (
+                    {maxJobPostsAllowed > 0 && (
+                        <Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <CreateJobButton onClick={handleCreateJob}>
+                                <AddIcon />
+                                Create a New Job
+                            </CreateJobButton>
+                            {maxJobPostsAllowed > 0 && (
+                                <Typography variant="h6" color="error" align="center" sx={{ mt: 3 }}>
+                                    You can post {maxJobPostsAllowed} more job{maxJobPostsAllowed > 1 ? 's' : ''}.
+                                </Typography>
+                            )}
+                        </Box>
+                    )}
+                    {maxJobPostsAllowed === 0 && (
+                        <Box sx={{ my: 3, textAlign: 'center' }}>
+                            <Typography variant="h6" color="error">
+                                You have reached the maximum job post limit. Upgrade your subscription to create more job posts.
+                            </Typography>
+                            <UpgradePlanButton />
+                        </Box>
+                    )}
+                    <Box sx={{ textAlign: 'center' }}>
+                        <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
+                            {jobPostDuration > 0 && (
+                                <span>
+                                    {jobPostDuration === 1 && `Subscription: ${jobPostDuration} day remaining`}
+                                    {jobPostDuration > 1 && `Subscription: ${jobPostDuration} days remaining`}
+                                    {jobPostDuration <= 3 && '⚠️ Hurry up! Your subscription is about to expire soon.'}
+                                    {jobPostDuration <= 7 && '🔄 Consider renewing your subscription for uninterrupted service.'}
+                                    {jobPostDuration > 7 && '✨ You have plenty of subscription days left. Enjoy your service!'}
+                                </span>
+                            )}
+                            {jobPostDuration === 0 && (
+                                <span>Your subscription has expired. Please renew to continue using our service.</span>
+                            )}
+                        </Typography>
+                    </Box>
+                    {/* {jobs.length > 0 && (
                         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
                             <CreateJobButton onClick={handleCreateJob}>
                                 <AddIcon />
                                 Create a New Job
                             </CreateJobButton>
                         </Box>
-                    )}
+                    )} */}
                     {jobs.length === 0 ? (
                         <Card
                             sx={{
@@ -227,23 +292,26 @@ const JobListing = () => {
                                         Closed Job - {job.closeReason}
                                     </Typography>
                                 )}
-                                <Typography variant="h6" mb={2}>
-                                    {job.jobTitle}
+                                <Typography variant="h6" mb={2} sx={{ fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif', fontSize: '20px', color: '#FF3366', fontWeight: 'bold' }}>
+                                    <strong>{job.jobTitle}</strong>
                                 </Typography>
-                                <Typography>Description: {job.jobDescription}</Typography>
                                 <Typography>
-                                    Location: {job.jobLocation ? `${job.jobLocation.streetAddress}, ${job.jobLocation.city}, ${job.jobLocation.province} ${job.jobLocation.postalCode}` : 'N/A'}
+                                    <strong>Description:</strong> {job.jobDescription}
                                 </Typography>
-                                <Typography>Industry: {job.industryType}</Typography>
-                                {/* <Typography>Location: {job.jobLocation}</Typography> */}
-                                <Typography>Posted on: {new Date(job.createdAt).toLocaleDateString()}</Typography>
-                                <Typography variant="h5">
-                                    Applied Users: {' '}
+                                <Typography>
+                                    <strong>Location:</strong> {job.jobLocation ? `${job.jobLocation.streetAddress}, ${job.jobLocation.city}, ${job.jobLocation.province} ${job.jobLocation.postalCode}` : 'N/A'}
+                                </Typography>
+                                <Typography>
+                                    <strong>Industry Type:</strong> {job.industryType ? job.industryType : 'N/A'}
+                                </Typography>
+                                <Typography><strong>Posted on:</strong> {new Date(job.createdAt).toLocaleDateString()}</Typography>
+                                <Typography variant="h5" sx={{ fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif', fontSize: '18px', color: '#1976D2', fontWeight: 'bold', mt: 2 }}>
+                                    <strong>Applied Users: {' '}</strong>
                                     <Link
                                         component="button"
                                         variant="body2"
                                         onClick={() => handleOpenAppliedUsersDialog(job)}
-                                        color="primary"
+                                        sx={{ color: '#2196F3', textDecoration: 'underline', ml: 1 }}
                                     >
                                         View ({job.appliedUsers.length})
                                     </Link>

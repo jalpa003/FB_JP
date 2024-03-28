@@ -56,17 +56,6 @@ const JobPostingForm = () => {
                 return;
             }
 
-            if (values.showWageRate) {
-                if (!values.payAmount) {
-                    toast.error('Pay Amount is required');
-                    return;
-                }
-                if (!values.payRate) {
-                    toast.error('Pay Rate is required');
-                    return;
-                }
-            }
-
             // Retrieve the token from localStorage
             const token = localStorage.getItem('token');
 
@@ -96,7 +85,7 @@ const JobPostingForm = () => {
         } catch (error) {
             const errorData = error.response.data;
             console.log(errorData.messages);
-            toast.error(errorData.messages[0])
+            toast.error(errorData.message)
         }
     };
 
@@ -151,6 +140,9 @@ const JobPostingForm = () => {
                                         rows={3}
                                         required
                                     />
+                                    <Typography variant="h5" gutterBottom>
+                                        Location
+                                    </Typography>
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} sm={6}>
                                             <Field
@@ -217,7 +209,7 @@ const JobPostingForm = () => {
                                         </Grid>
                                     </Grid>
                                     <Typography variant="h5" gutterBottom>
-                                        Job Requirements
+                                        Required Training/Experience
                                     </Typography>
                                     <JobRequirementsCheckboxGroup />
                                     <Grid container spacing={2}>

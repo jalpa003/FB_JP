@@ -38,6 +38,7 @@ function AppAppBar() {
     };
 
     let decodedToken;
+    let userFirstName;
 
     if (isLoggedIn) {
         // Get the token from local storage
@@ -45,6 +46,9 @@ function AppAppBar() {
 
         // Decode the token to get user information
         decodedToken = jwt_decode(token);
+
+        // Get user's first name
+        userFirstName = decodedToken.name;
     }
 
     const handleLogout = () => {
@@ -109,9 +113,12 @@ function AppAppBar() {
                             </Link>
                         </Typography>
                     </Box>
-                    <Box>
-                        {isLoggedIn ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        {isLoggedIn && (
                             <>
+                                <Typography variant="body1" sx={{ color: 'common.white', mr: 2 }}>
+                                    {userFirstName ? `Welcome, ${userFirstName}` : 'Welcome'}
+                                </Typography>
                                 <IconButton
                                     size="large"
                                     edge="end"
@@ -146,7 +153,8 @@ function AppAppBar() {
                                     </MenuItem>
                                 </Menu>
                             </>
-                        ) : (
+                        )}
+                        {!isLoggedIn && (
                             <>
                                 <Link
                                     color="inherit"

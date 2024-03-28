@@ -14,7 +14,8 @@ const JobRequirementsCheckboxGroup = () => {
         'bartending',
         'barista',
         'fineDining',
-        'POSExperience'
+        'POSExperience',
+        'FoodHandlerCertification'
     ];
 
     return (
