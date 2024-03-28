@@ -16,6 +16,16 @@ module.exports.createJobPosting = async (req, res) => {
             return res.status(404).json({ message: "Employer profile not found." });
         }
 
+        // Check if the employer has exceeded the maximum job posts allowed
+        if (employerProfile.subscription && employerProfile.subscription.maxJobPostsAllowed <= 0) {
+            return res.status(403).json({ message: "You have reached the maximum job post limit for your subscription plan." });
+        }
+
+        // Check if job post duration is 0
+        if (employerProfile.subscription && employerProfile.subscription.jobPostDuration === 0) {
+            return res.status(403).json({ message: "You cannot post jobs as your job post duration has expired." });
+        }
+
         // Extract selected questions from request body
         const { selectedQuestions } = req.body;
 
@@ -26,6 +36,12 @@ module.exports.createJobPosting = async (req, res) => {
             selectedQuestions,
             ...req.body,
         });
+
+        // Decrement the remaining job post count for the employer's subscription plan
+        if (employerProfile.subscription) {
+            employerProfile.subscription.maxJobPostsAllowed--;
+            await employerProfile.save();
+        }
 
         const saveJob = await newJob.save();
         if (!saveJob) throw Error("Failed to create a job posting");

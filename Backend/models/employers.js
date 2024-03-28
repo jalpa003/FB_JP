@@ -26,6 +26,15 @@ const employerProfileSchema = new mongoose.Schema({
             default: 'Free',
         },
         priceId: String,
+        maxJobPostsAllowed: {
+            type: Number,
+            default: 1,
+        },
+        jobPostDuration: {
+            type: Number,
+            default: 7,
+            index: true
+        },
     },
 }, { timestamps: true });
 

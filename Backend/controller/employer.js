@@ -5,7 +5,7 @@ const mongoose = require('mongoose')
 
 //create employee profile
 module.exports.createEmployerProfile = async (req, res) => {
-    const { phone, companyName, numberOfEmployees, fAndBIndustry, companyDescription, streetAddress } = req.body;
+    const { firstName, lastName, phone, companyName, numberOfEmployees, fAndBIndustry, companyDescription, streetAddress } = req.body;
     const userId = req.user.id;
 
     try {
@@ -13,6 +13,13 @@ module.exports.createEmployerProfile = async (req, res) => {
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Update user's first name and last name if provided
+        if (firstName && lastName) {
+            user.firstName = firstName;
+            user.lastName = lastName;
+            await user.save();
         }
 
         // Check if the employer profile already exists

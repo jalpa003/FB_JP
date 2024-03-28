@@ -70,6 +70,10 @@ const jobSchema = new mongoose.Schema({
         POSExperience: {
             type: Boolean,
             default: false
+        },
+        FoodHandlerCertification: {
+            type: Boolean,
+            default: false
         }
     },
     experience: {

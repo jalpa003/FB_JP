@@ -20,8 +20,8 @@ module.exports.createCheckoutSession = async (req, res) => {
     }
 
     try {
-        // Retrieve pricing details from your database based on the priceId
-        const priceId = await determinePriceId(selectedPlan);
+        // Determine the priceId, maxJobPostsAllowed, and jobPostDuration based on the selected plan
+        const { priceId, maxJobPostsAllowed, jobPostDuration } = await determineSubscriptionDetails(selectedPlan);
 
         // Check if the customer already exists
         let customer = await stripe.customers.list({
@@ -71,6 +71,8 @@ module.exports.createCheckoutSession = async (req, res) => {
                 $set: {
                     'subscription.planName': selectedPlan,
                     'subscription.priceId': priceId,
+                    'subscription.maxJobPostsAllowed': maxJobPostsAllowed,
+                    'subscription.jobPostDuration': jobPostDuration,
                 },
             },
             { new: true }
@@ -84,6 +86,27 @@ module.exports.createCheckoutSession = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+
+module.exports.upgradeSubscription = async (req, res) => {
+    try {
+        let customer = await stripe.customers.list({
+            email: req.user.email,
+            limit: 1,
+        });
+        if (customer.data.length === 0) {
+            return res.status(400).json({ success: false, message: 'No customer found.' });
+        }
+
+        const session = await stripe.billingPortal.sessions.create({
+            customer: customer.data[0].id,
+            return_url: `${process.env.CLIENT_URL}/employer-profile`,
+        });
+        res.json({ success: true, sessionUrl: session.url });
+    }
+    catch (err) {
+        console.log(err);
+    }
+}
 
 // Helper function to determine priceId based on the selected plan
 const determinePriceId = async (selectedPlan) => {
@@ -110,6 +133,43 @@ const determinePriceId = async (selectedPlan) => {
         return priceId;
     } catch (error) {
         console.error('Error fetching price:', error);
+        throw error;
+    }
+};
+
+// Helper function to determine subscription details based on the selected plan
+const determineSubscriptionDetails = async (selectedPlan) => {
+    try {
+        // Determine subscription details based on the selected plan
+        let priceId, maxJobPostsAllowed, jobPostDuration;
+        switch (selectedPlan) {
+            case 'Free':
+                priceId = '';
+                maxJobPostsAllowed = 1;
+                jobPostDuration = 7;
+                break;
+            case 'Silver':
+                priceId = 'price_1Ot0JUK3He90GfsAJfjEU2Cg';
+                maxJobPostsAllowed = 3;
+                jobPostDuration = 30;
+                break;
+            case 'Gold':
+                priceId = 'price_1Ot0LeK3He90GfsABiiRN0HW';
+                maxJobPostsAllowed = Number.MAX_SAFE_INTEGER;
+                jobPostDuration = 90;
+                break;
+            case 'Platinum':
+                priceId = 'price_1Ot0MMK3He90GfsAvbdHjMbA';
+                maxJobPostsAllowed = Number.MAX_SAFE_INTEGER;
+                jobPostDuration = 365;
+                break;
+            default:
+                throw new Error(`Invalid plan: ${selectedPlan}`);
+        }
+
+        return { priceId, maxJobPostsAllowed, jobPostDuration };
+    } catch (error) {
+        console.error('Error determining subscription details:', error);
         throw error;
     }
 };

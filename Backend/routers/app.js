@@ -63,6 +63,7 @@ router.delete('/delete_employee/:employeeId', middleware.verifyToken, employerRo
 
 router.get('/pricing-plans', pricingRoutes.getPricingPlans);
 router.post('/create-checkout-session', middleware.verifyToken, pricingRoutes.createCheckoutSession);
+router.post('/upgrade_Subscription', middleware.verifyToken, pricingRoutes.upgradeSubscription);
 
 router.post('/apply_job', middleware.verifyToken, uploadMiddleware([{ name: 'resume', maxCount: 1 },]), applicationRoutes.createJobApplication);
 
