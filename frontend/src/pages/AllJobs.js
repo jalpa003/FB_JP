@@ -344,7 +344,7 @@ const JobListing = () => {
                             <Typography variant="h6" mb={2} sx={{ fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif', fontSize: '20px', color: '#FF3366', fontWeight: 'bold' }}>
                                 <strong>{job.jobTitle}</strong>
                             </Typography>
-                            <Typography>
+                            <Typography style={{ maxHeight: '3em', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
                                 <strong>Description:</strong> {job.jobDescription}
                             </Typography>
                             <Typography>
